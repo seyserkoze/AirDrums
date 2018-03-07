@@ -1,0 +1,16 @@
+---
+layout: post
+title:  "Week 1 Blog Post"
+date:   2018-03-07 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+* Worked on setting up the Design Proposal in Latex and on my section, Design Trade Studies. 
+This involved analyzing the design decisions that we made and providing quantitative arguments
+to support them. 
+
+* Created the website for blog posts using Jekyll. Uploaded to AFS.
+
+
+
