@@ -14,9 +14,17 @@ to support them.
 
 ## Samuel: ## 
 
-* Worked on design proposal sections on Architecture and System Design. Created various block diagrams to model the various system components. 
+* Worked on Design Proposal sections on Architecture and System Design. Created various block diagrams to model the various system components. 
 
 * Experimented with Teensy loader programs mainly the teensy_loader_cli and teensyduino.
 
 * Read up on bluetooth protocols and using the Teensy I2C and UART libraries
 
+
+## Shaurya: ##
+
+* Worked on Design Proposal sections on Project Description & Introduction and Team Schedule and responsibilities. Added a Gantt Chart to the same. 
+
+* Initialized GitHub Repo for the project. 
+
+* Read up information online about how to correctly synthesize percussion sounds of different attack/velocities through amplitude and decay modulation. Currently experimenting with pre-synthesizing these drum sounds at different velocities through signal modulation in Logic Pro X.
