@@ -12,5 +12,11 @@ to support them.
 
 * Created the website for blog posts using Jekyll. Uploaded to AFS.
 
+## Samuel: ## 
 
+* Worked on design proposal sections on Architecture and System Design. Created various block diagrams to model the various system components. 
+
+* Experimented with Teensy loader programs mainly the teensy_loader_cli and teensyduino.
+
+* Read up on bluetooth protocols and using the Teensy I2C and UART libraries
 
