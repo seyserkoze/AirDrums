@@ -12,6 +12,8 @@ to support them.
 
 * Created the website for blog posts using Jekyll. Uploaded to AFS.
 
+* Reading up on Python UART/Bluetooth libraries 
+
 ## Samuel: ## 
 
 * Worked on Design Proposal sections on Architecture and System Design. Created various block diagrams to model the various system components. 
