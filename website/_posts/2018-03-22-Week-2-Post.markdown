@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Week 2 Blog Post"
-date:   2018-03-07 12:01:02 -0500
+date:   2018-03-22 12:01:02 -0500
 categories: Capstone Update
 ---
 ## Avi: ## 
