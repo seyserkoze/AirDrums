@@ -25,3 +25,9 @@ categories: Capstone Update
 * Teensy pin soldering
 
 * I2C wiring and debugging of BNO055 IMU Fusion sensor 
+
+## Shaurya: ##
+
+*Finished synthesizing custom drum pack for AirDrums capable of producing nine different sounds for five different drum packs
+
+*Started modelling of drumsticks
