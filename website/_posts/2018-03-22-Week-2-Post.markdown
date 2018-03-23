@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Week 1 Blog Post"
+title:  "Week 2 Blog Post"
 date:   2018-03-07 12:01:02 -0500
 categories: Capstone Update
 ---
