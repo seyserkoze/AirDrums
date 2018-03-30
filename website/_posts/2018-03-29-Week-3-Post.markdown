@@ -8,7 +8,7 @@ categories: Capstone Update
 
 * Helped debug I2C error
 
-* Refactored code from Python 3.6 to 2.7 for Bluefruit BLE library.
+* Refactored code from Python 3.6 to 2.7 for Bluefruit BLE library
 
 * Installed and configured Bluefruit BLE library for team
 

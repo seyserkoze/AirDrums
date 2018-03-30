@@ -27,12 +27,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="2018-03-07-Week-1-Post.markdown" pinned="false" current-in-tab="false">
+      <file leaf-file-name="2018-03-07-Week-1-Post.markdown" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/_posts/2018-03-07-Week-1-Post.markdown">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="149">
-                <caret line="10" column="41" lean-forward="false" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
+              <first_editor relative-caret-position="516">
+                <caret line="35" column="130" lean-forward="true" selection-start-line="35" selection-start-column="130" selection-end-line="35" selection-end-column="130" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -44,8 +44,8 @@
         <entry file="file://$PROJECT_DIR$/_posts/2018-03-22-Week-2-Post.markdown">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="150">
-                <caret line="10" column="92" lean-forward="true" selection-start-line="10" selection-start-column="92" selection-end-line="10" selection-end-column="92" />
+              <first_editor relative-caret-position="270">
+                <caret line="18" column="79" lean-forward="true" selection-start-line="18" selection-start-column="79" selection-end-line="18" selection-end-column="79" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -53,12 +53,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="2018-03-29-Week-3-Post.markdown" pinned="false" current-in-tab="true">
+      <file leaf-file-name="2018-03-29-Week-3-Post.markdown" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/_posts/2018-03-29-Week-3-Post.markdown">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="450">
-                <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+              <first_editor relative-caret-position="150">
+                <caret line="10" column="66" lean-forward="true" selection-start-line="10" selection-start-column="66" selection-end-line="10" selection-end-column="66" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -76,9 +76,9 @@
         <option value="$PROJECT_DIR$/_posts/2018-03-07-welcome-to-jekyll.markdown" />
         <option value="$PROJECT_DIR$/Gemfile" />
         <option value="$PROJECT_DIR$/_config.yml" />
+        <option value="$PROJECT_DIR$/_posts/2018-03-29-Week-3-Post.markdown" />
         <option value="$PROJECT_DIR$/_posts/2018-03-22-Week-2-Post.markdown" />
         <option value="$PROJECT_DIR$/_posts/2018-03-07-Week-1-Post.markdown" />
-        <option value="$PROJECT_DIR$/_posts/2018-03-29-Week-3-Post.markdown" />
       </list>
     </option>
   </component>
@@ -168,12 +168,12 @@
       <workItem from="1520452265746" duration="2359000" />
       <workItem from="1520568239967" duration="572000" />
       <workItem from="1521762714970" duration="1908000" />
-      <workItem from="1522372761648" duration="336000" />
+      <workItem from="1522372761648" duration="771000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="8147000" />
+    <option name="totallyTimeSpent" value="8582000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="738" extended-state="6" />
@@ -321,11 +321,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-03-07-Week-1-Post.markdown">
+    <entry file="file://$PROJECT_DIR$/_posts/2018-03-29-Week-3-Post.markdown">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="149">
-            <caret line="10" column="41" lean-forward="false" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
+          <first_editor relative-caret-position="150">
+            <caret line="10" column="66" lean-forward="true" selection-start-line="10" selection-start-column="66" selection-end-line="10" selection-end-column="66" />
             <folding />
           </first_editor>
           <second_editor />
@@ -335,19 +335,19 @@
     <entry file="file://$PROJECT_DIR$/_posts/2018-03-22-Week-2-Post.markdown">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="150">
-            <caret line="10" column="92" lean-forward="true" selection-start-line="10" selection-start-column="92" selection-end-line="10" selection-end-column="92" />
+          <first_editor relative-caret-position="270">
+            <caret line="18" column="79" lean-forward="true" selection-start-line="18" selection-start-column="79" selection-end-line="18" selection-end-column="79" />
             <folding />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/_posts/2018-03-29-Week-3-Post.markdown">
+    <entry file="file://$PROJECT_DIR$/_posts/2018-03-07-Week-1-Post.markdown">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="450">
-            <caret line="30" column="0" lean-forward="true" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
+          <first_editor relative-caret-position="516">
+            <caret line="35" column="130" lean-forward="true" selection-start-line="35" selection-start-column="130" selection-end-line="35" selection-end-column="130" />
             <folding />
           </first_editor>
           <second_editor />

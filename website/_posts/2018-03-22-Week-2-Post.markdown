@@ -16,7 +16,7 @@ categories: Capstone Update
 
 ## Samuel: ## 
 
-* Teensy local development environment. Installed Teensy loader and Teensyduino.
+* Teensy local development environment. Installed Teensy loader and Teensyduino
 
 * Ran various trial programs on Teensy to test function
 

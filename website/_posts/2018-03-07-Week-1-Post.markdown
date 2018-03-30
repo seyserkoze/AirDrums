@@ -33,4 +33,4 @@ categories: Capstone Update
 
 * Read up information online about how to correctly synthesize percussion sounds of different attack/velocities through amplitude and decay modulation
  
-* Currently experimenting with pre-synthesizing these drum sounds at different velocities through signal modulation in Logic Pro X.
+* Currently experimenting with pre-synthesizing these drum sounds at different velocities through signal modulation in Logic Pro X
