@@ -166,27 +166,48 @@ void loop(void)
 
   if (Serial.available())
   {
+    //read user input
     n = Serial.readBytes(inputs, BUFSIZE);
     inputs[n] = 0;
     // Send characters to Bluefruit
     Serial.print("Sending: ");
     Serial.println(inputs);
 
-    // Send input data to host via Bluefruit
-    ble.print(inputs);
   }
 
   // Echo received data
-  while ( ble.available() )
+  char received[BUFSIZE + 1] ;
+  int r = 0;
+  while (1)
   {
-    int c = ble.read();
+    if(ble.available()) {
+      //read received data
+      int c = ble.read();
+      if((char)c == '!') {
+        //if c is null terminator
+        received[r] = (char)c ; 
+        r += 1 ;
+        while(ble.available()) {
+          ble.read() ; //clear buffer
+        }
+        break ;
+      }
+      received[r] = (char)c ; 
+      r += 1 ;
+      
+    }
 
-    Serial.print((char)c);
-
-    // Hex output too, helps w/debugging!
+    /* Hex output too, helps w/debugging!
     Serial.print(" [0x");
     if (c <= 0xF) Serial.print(F("0"));
     Serial.print(c, HEX);
     Serial.print("] ");
+    */
+  }
+  received[r] = 0 ; //null terminator
+  if(r > 0) {
+    Serial.print("Received: ") ; 
+    Serial.println(received); 
+    ble.print(received) ; //echo to master
   }
 }
