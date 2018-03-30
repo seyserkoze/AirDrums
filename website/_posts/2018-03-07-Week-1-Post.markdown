@@ -6,27 +6,31 @@ categories: Capstone Update
 ---
 ## Avi: ## 
 
-* Worked on setting up the Design Proposal in Latex and on my section, Design Trade Studies. 
-This involved analyzing the design decisions that we made and providing quantitative arguments
-to support them. 
+* Worked on setting up the Design Proposal in Latex and on my section, Design Trade Studies
 
-* Created the website for blog posts using Jekyll. Uploaded to AFS.
+* Analyzed trade-offs in design decisions
+
+* Created the website for blog posts using Jekyll and uploaded to AFS
 
 * Reading up on Python UART/Bluetooth libraries 
 
 ## Samuel: ## 
 
-* Worked on Design Proposal sections on Architecture and System Design. Created various block diagrams to model the various system components. 
+* Worked on Design Proposal sections on Architecture and System Design
+ 
+* Created various block diagrams to model the various system components
 
-* Experimented with Teensy loader programs mainly the teensy_loader_cli and teensyduino.
+* Experimented with Teensy loader programs mainly the teensy_loader_cli and teensyduino
 
 * Read up on bluetooth protocols and using the Teensy I2C and UART libraries
 
 
 ## Shaurya: ##
 
-* Worked on Design Proposal sections on Project Description & Introduction and Team Schedule and responsibilities. Added a Gantt Chart to the same. 
+* Worked on Design Proposal sections on Project Description & Introduction and Team Schedule and responsibilities and added a Gantt Chart 
 
-* Initialized GitHub Repo for the project. 
+* Initialized GitHub Repo for the project
 
-* Read up information online about how to correctly synthesize percussion sounds of different attack/velocities through amplitude and decay modulation. Currently experimenting with pre-synthesizing these drum sounds at different velocities through signal modulation in Logic Pro X.
+* Read up information online about how to correctly synthesize percussion sounds of different attack/velocities through amplitude and decay modulation
+ 
+* Currently experimenting with pre-synthesizing these drum sounds at different velocities through signal modulation in Logic Pro X

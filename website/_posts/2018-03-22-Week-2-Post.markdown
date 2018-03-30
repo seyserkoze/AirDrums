@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "Week 2 Blog Post"
+date:   2018-03-22 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+* Wrote Python script to play .wav drum samples
+
+* Updated script to allow for configurable number of parallel sounds played at the same time
+
+* Reading up on Teensy I2C and Bluetooth
+
+* Debugged Teensy I2C and BNO055 IMU connection
+
+## Samuel: ## 
+
+* Teensy local development environment. Installed Teensy loader and Teensyduino
+
+* Ran various trial programs on Teensy to test function
+
+* Tested Bluetooth beacons
+
+* Teensy pin soldering
+
+* I2C wiring and debugging of BNO055 IMU Fusion sensor 
+
+## Shaurya: ##
+
+* Finished synthesizing custom drum pack for AirDrums capable of producing nine different sounds for five different drum packs
+
+* Started modelling of drumsticks
