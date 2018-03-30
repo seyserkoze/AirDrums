@@ -6,9 +6,9 @@ categories: Capstone Update
 ---
 ## Avi: ## 
 
-* Wrote Python script to play .wav drum samples.
+* Wrote Python script to play .wav drum samples
 
-* Updated script to allow for configurable number of parallel sounds played at the same time.
+* Updated script to allow for configurable number of parallel sounds played at the same time
 
 * Reading up on Teensy I2C and Bluetooth
 
@@ -28,6 +28,6 @@ categories: Capstone Update
 
 ## Shaurya: ##
 
-*Finished synthesizing custom drum pack for AirDrums capable of producing nine different sounds for five different drum packs
+* Finished synthesizing custom drum pack for AirDrums capable of producing nine different sounds for five different drum packs
 
-*Started modelling of drumsticks
+* Started modelling of drumsticks

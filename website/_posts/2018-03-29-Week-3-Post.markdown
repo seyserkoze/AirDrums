@@ -1,0 +1,30 @@
+---
+layout: post
+title:  "Week 3 Blog Post"
+date:   2018-03-29 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+* Helped debug I2C error
+
+* Refactored code from Python 3.6 to 2.7 for Bluefruit BLE library.
+
+* Installed and configured Bluefruit BLE library for team
+
+## Samuel: ## 
+
+* Debugged I2C error
+
+* Soldering pins 
+
+* Wrote tests for BNO055 sensor
+
+* Installing libraries for Bluefruit
+
+
+## Shaurya: ##
+
+* Finished 3D model of drumsticks
+
+* Obtained price quote on model
