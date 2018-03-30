@@ -5,9 +5,12 @@ from time import sleep
 
 import pygame
 
+import Adafruit_BluefruitLE
+from Adafruit_BluefruitLE.services import UART, DeviceInformation
+
+ble = Adafruit_BluefruitLE.get_provider()
 
 class Audio:
-
     def play_sound(self, drum, volume):
         """
         plays audio given drum type from map given above and volume from 0 to 100 using threads
@@ -125,7 +128,7 @@ class Audio:
         self.__task_queue.put(('tom', 100))
         self.__task_queue.join()
 
-    def __init__(self, num_channels = 20):
+    def __init__(self, num_channels=20):
         """
         constructor that initializes data structures
         :return: None
@@ -154,6 +157,6 @@ class Audio:
             t.setDaemon(True)
             t.start()
         self.__test()
-
+        
 
 test = Audio()
