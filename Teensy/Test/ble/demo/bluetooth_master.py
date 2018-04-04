@@ -150,8 +150,21 @@ def uart_service():
 #-----------------------------MAIN Code-----------------------------
 
 
+class Vector3D():
+	def __init__(self):
+		self.x = None
+		self.y = None
+		self.z = None
+
+	def __str__(self):
+		return "x: {} y: {} z: {}".format(self.x,self.y,self.z)
+
+
+
+
+
 # returns the devices in device_ids as a dictionary of id: device
-def get_devices(device_ids, timeout=20):
+def getDevices(device_ids, timeout=20):
 	# Get the first available BLE network adapter and make sure it's powered on.
     adapter = ble.get_default_adapter()
     adapter.power_on()
@@ -232,6 +245,20 @@ class UARTStream():
 	def write(self, write_str):
 		self.uart.write(write_str)
 
+# assumes data_str = '[x,y,z]'
+def parseSensorData(data_str):
+	data_str = data_str[1:len(data_str)-1]
+	vect = Vector3D()
+	vals = data_str.split(",")
+	if len(vals) != 3:
+		assert False, "Parsed Bad Sensor Data"
+	
+	vect.x = float(val[0])
+	vect.y = float(val[1])
+	vect.z = float(val[2])
+	return vect
+
+
 
 def userInputHandler():
 	print "Starting input handler"
@@ -247,7 +274,7 @@ def userInputHandler():
 # polls sensors and starts user input handler thread
 def start_system():
 	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")]
-	devices = get_devices(allowed_ids) # dict of uuid: device
+	devices = getDevices(allowed_ids) # dict of uuid: device
 	# uarts are used to read and write data over bluetooth
 	uarts = {device.id: UART(device) for device in devices.values()}
 	packet_len = 20
@@ -258,6 +285,7 @@ def start_system():
 		while not end_program:
 			sensor_str = uart_stream.readUntil("]")
 			# print "Received: {}".format(sensor_str)
+			vect = parseSensorData(sensor_str)
 	except Exception as e:
 		print(e)
 		raise e
