@@ -132,9 +132,6 @@ void setup(void)
 
   ble.verbose(false);  // debug info is a little annoying after this point!
 
-  // set interval
-  ble.println("AT+GAPINTERVALS=10,20,,");
-
   /* Wait for connection */
   while (! ble.isConnected()) {
       delay(500);
@@ -164,15 +161,30 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
+  // Check for user input
+  char n, inputs[BUFSIZE+1];
+
+  if (Serial.available())
+  {
+    //read user input
+    n = Serial.readBytes(inputs, BUFSIZE);
+    inputs[n] = 0;
+    // Send characters to Bluefruit
+    Serial.print("Sending: ");
+    Serial.println(inputs);
+
+  }
+
   // Echo received data
-  char received[BUFSIZE] ;
+  char received[BUFSIZE + 1] ;
   int r = 0;
   while (1)
   {
     if(ble.available()) {
       //read received data
       int c = ble.read();
-      if((char)c == '\n') {
+      if((char)c == '!') {
+        //if c is null terminator
         received[r] = (char)c ; 
         r += 1 ;
         while(ble.available()) {
@@ -192,19 +204,38 @@ void loop(void)
     Serial.print("] ");
     */
   }
-  received[r] = 0 ;
+  received[r] = 0 ; //null terminator
   if(r > 0) {
     Serial.print("Received: ") ; 
-    Serial.println(received);
-    Serial.println(r, DEC) ;
-    delay(1000) ; 
-    //ble.print(received) ; //echo to master
-    //ble.print(received) ; //echo to master 
-    while(1) {
-      ble.print(received) ; //echo to master 
-    }
-    // Serial.println(ble.flush()) ;
+    Serial.println(received); 
+    ble.print(received) ; //echo to master
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -9,7 +9,7 @@
  */
 
 // constants won't change. Used here to set pin numbers:
-  // Pin 11: Teensy 2.0 has the LED on pin 11
+// Pin 11: Teensy 2.0 has the LED on pin 11
 
 const int ledPin =  11;      // LED of Teensy 2.0
 const int sdaPin = 6 ;
@@ -20,6 +20,11 @@ const unsigned char imuAddr = 0x28 ; // i2c address
 const int imu_id = 55 ; 
 Adafruit_BNO055 bno = Adafruit_BNO055(imu_id, imuAddr) ; // id 55
 const unsigned int imu_loop_delay = 1000 ; //100 ms
+
+//BLE variables
+const int cts_pin = 14 ;
+const int mod_pin = 13 ;
+int ble_baud_rate = 115200 ;
 
 const int  serialBaudRate = 9600 ; 
 // Variables will change:
@@ -106,8 +111,8 @@ void setup() {
   digitalWrite(ledPin, HIGH) ; // turn on LED
   Serial.begin(serialBaudRate) ; // turn on usb serial output
   Serial.println("Hi From Teensy") ;
-  //Wire.setSDA(sdaPin) ;
-  //Wire.setSCL(sclPin) ; 
+  Wire.setSDA(sdaPin) ;
+  Wire.setSCL(sclPin) ; 
   if(!bno.begin()) {
     Serial.println("Could not find BN055") ;
     while(1) ; //hang here

@@ -61,23 +61,10 @@
 /*=========================================================================*/
 
 // Create the bluefruit object, either software serial...uncomment these lines
-/*
-SoftwareSerial bluefruitSS = SoftwareSerial(BLUEFRUIT_SWUART_TXD_PIN, BLUEFRUIT_SWUART_RXD_PIN);
-
-Adafruit_BluefruitLE_UART ble(bluefruitSS, BLUEFRUIT_UART_MODE_PIN,
-                      BLUEFRUIT_UART_CTS_PIN, BLUEFRUIT_UART_RTS_PIN);
-*/
 
 /* ...or hardware serial, which does not need the RTS/CTS pins. Uncomment this line */
-Adafruit_BluefruitLE_UART ble(BLUEFRUIT_HWSERIAL_NAME, BLUEFRUIT_UART_MODE_PIN);
+Adafruit_BluefruitLE_UART ble(Serial1, BLUEFRUIT_UART_MODE_PIN);
 
-/* ...hardware SPI, using SCK/MOSI/MISO hardware SPI pins and then user selected CS/IRQ/RST */
-//Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_CS, BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
-
-/* ...software SPI, using SCK/MOSI/MISO user-defined SPI pins and then user selected CS/IRQ/RST */
-//Adafruit_BluefruitLE_SPI ble(BLUEFRUIT_SPI_SCK, BLUEFRUIT_SPI_MISO,
-//                             BLUEFRUIT_SPI_MOSI, BLUEFRUIT_SPI_CS,
-//                             BLUEFRUIT_SPI_IRQ, BLUEFRUIT_SPI_RST);
 
 
 // A small helper
@@ -98,8 +85,8 @@ void setup(void)
   delay(500);
 
   Serial.begin(115200);
-  Serial.println(F("Adafruit Bluefruit Command <-> Data Mode Example"));
-  Serial.println(F("------------------------------------------------"));
+  Serial.println(F("Adafruit Bluefruit Command Mode Example"));
+  Serial.println(F("---------------------------------------"));
 
   /* Initialise the module */
   Serial.print(F("Initialising the Bluefruit LE module: "));
@@ -132,29 +119,20 @@ void setup(void)
 
   ble.verbose(false);  // debug info is a little annoying after this point!
 
-  // set interval
-  ble.println("AT+GAPINTERVALS=10,20,,");
-
   /* Wait for connection */
   while (! ble.isConnected()) {
       delay(500);
   }
 
-  Serial.println(F("******************************"));
-
   // LED Activity command is only supported from 0.6.6
   if ( ble.isVersionAtLeast(MINIMUM_FIRMWARE_VERSION) )
   {
     // Change Mode LED Activity
+    Serial.println(F("******************************"));
     Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
+    Serial.println(F("******************************"));
   }
-
-  // Set module to DATA mode
-  Serial.println( F("Switching to DATA mode!") );
-  ble.setMode(BLUEFRUIT_MODE_DATA);
-
-  Serial.println(F("******************************"));
 }
 
 /**************************************************************************/
@@ -164,47 +142,60 @@ void setup(void)
 /**************************************************************************/
 void loop(void)
 {
-  // Echo received data
-  char received[BUFSIZE] ;
-  int r = 0;
-  while (1)
-  {
-    if(ble.available()) {
-      //read received data
-      int c = ble.read();
-      if((char)c == '\n') {
-        received[r] = (char)c ; 
-        r += 1 ;
-        while(ble.available()) {
-          ble.read() ; //clear buffer
-        }
-        break ;
-      }
-      received[r] = (char)c ; 
-      r += 1 ;
-      
-    }
+  // Check for user input
+  char inputs[BUFSIZE+1];
 
-    /* Hex output too, helps w/debugging!
-    Serial.print(" [0x");
-    if (c <= 0xF) Serial.print(F("0"));
-    Serial.print(c, HEX);
-    Serial.print("] ");
-    */
-  }
-  received[r] = 0 ;
-  if(r > 0) {
-    Serial.print("Received: ") ; 
-    Serial.println(received);
-    Serial.println(r, DEC) ;
-    delay(1000) ; 
-    //ble.print(received) ; //echo to master
-    //ble.print(received) ; //echo to master 
+  if ( getUserInput(inputs, BUFSIZE) )
+  {
+    // Send characters to Bluefruit
+    Serial.print("[Send] ");
+    Serial.println(inputs);
+
     while(1) {
-      ble.print(received) ; //echo to master 
+     ble.print("AT+BLEUARTTX=");
+     ble.println(inputs);
+
+    // check response stastus
+    if (! ble.waitForOK() ) {
+      Serial.println(F("Failed to send?"));
+    } 
     }
-    // Serial.println(ble.flush()) ;
   }
+
+  // Check for incoming characters from Bluefruit
+  ble.println("AT+BLEUARTRX");
+  ble.readline();
+  if (strcmp(ble.buffer, "OK") == 0) {
+    // no data
+    return;
+  }
+  // Some data was found, its in the buffer
+  Serial.print(F("[Recv] ")); Serial.println(ble.buffer);
+  ble.waitForOK();
 }
 
+/**************************************************************************/
+/*!
+    @brief  Checks for user input (via the Serial Monitor)
+*/
+/**************************************************************************/
+bool getUserInput(char buffer[], uint8_t maxSize)
+{
+  // timeout in 100 milliseconds
+  TimeoutTimer timeout(100);
 
+  memset(buffer, 0, maxSize);
+  while( (!Serial.available()) && !timeout.expired() ) { delay(1); }
+
+  if ( timeout.expired() ) return false;
+
+  delay(2);
+  uint8_t count=0;
+  do
+  {
+    count += Serial.readBytes(buffer+count, maxSize);
+    delay(2);
+  } while( (count < maxSize) && (Serial.available()) );
+
+  return true;
+}
