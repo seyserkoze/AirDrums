@@ -6,17 +6,26 @@ categories: Capstone Update
 ---
 ## Avi: ## 
 
+* Debugged Bluetooth transmission problems
 
+* Determined optimal Bluetooth transmission mode through research
+
+* Helped finish basic Bluetooth receiver in Python
 
 
 ## Samuel: ## 
 
+* Debugged Bluetooth transmission problems
 
+* Integrated sensor polling with Bluetooth communication
 
+* Finished basic Bluetooth master driver and data parser
 
+* Finished basic tracking algorithm
 
 
 ## Shaurya: ##
 
 * Started work on FrontEnd Development in Python
-*Trimmed up master files of sound packs for use in synthesis program.
+
+* Trimmed up master files of sound packs for use in synthesis program
