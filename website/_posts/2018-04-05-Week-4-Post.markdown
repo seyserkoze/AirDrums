@@ -1,0 +1,22 @@
+---
+layout: post
+title:  "Week 4 Blog Post"
+date:   2018-04-05 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+
+
+
+## Samuel: ## 
+
+
+
+
+
+
+## Shaurya: ##
+
+* Started work on FrontEnd Development in Python
+*Trimmed up master files of sound packs for use in synthesis program.
