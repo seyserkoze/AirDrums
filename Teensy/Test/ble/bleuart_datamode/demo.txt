@@ -214,6 +214,10 @@ void loop(void)
 
 
 
+* Debugged bluetooth transmission problems
+* Integrated sensor polling with bluetooth communication
+* Finished basic bluetooth master driver and data parser
+* Finished basic tracking algorithm
 
 
 

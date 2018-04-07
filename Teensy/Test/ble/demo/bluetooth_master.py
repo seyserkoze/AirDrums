@@ -4,11 +4,14 @@ import time
 import atexit
 from uuid import UUID
 import thread
+import numpy as np
+import matplotlib.pyplot as plt
 
 # ---------------------------GLOBALS-----------------------------
 end_program = False
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
+sensor_data = []
 
 
 #-----------------------Examples------------------------------
@@ -151,14 +154,67 @@ def uart_service():
 
 
 class Vector3D():
-	def __init__(self):
-		self.x = None
-		self.y = None
-		self.z = None
+	def __init__(self, x, y,z):
+		self.x = x
+		self.y = y
+		self.z = z
 
 	def __str__(self):
 		return "x: {} y: {} z: {}".format(self.x,self.y,self.z)
 
+	def toArray(self):
+		return [self.x, self.y, self.z]
+
+
+class AccelTracker():
+	def __init__(self):
+		self.displacement = np.array([0.0,0.0,0.0])
+		self.velocity = np.array([0.0,0.0,0.0])
+		self.acceleration = np.array([0.0,0.0,0.0])
+		self.curr_time = 0 # in seconds
+		self.accel_offsets = np.array([0.03, 0.0, 0.3]) # arbitrary offsets based on sensor values
+		# self.millis = lambda : int((time.time()) * 1000)
+
+	def start(self):
+		self.displacement = np.array([0.0,0.0,0.0])
+		self.velocity = np.array([0.0,0.0,0.0])
+		self.acceleration = np.array([0.0,0.0,0.0])
+		self.curr_time =  time.time() # self.millis()
+
+	# takes in a vector3D of acceleration values. # input must be in SI units
+	# assumes constant acceleration between updates
+	def updateAccel(self, accel_vect):
+		elapsed_time = float((time.time()) - self.curr_time) # in seconds
+		self.curr_time = time.time() # update curr time after end of computation
+		new_accel = np.array(accel_vect.toArray()) + self.accel_offsets
+		print new_accel
+		# u should be last know velocity. a is the current accel = new_accel
+		self.displacement = self.displacement + ((elapsed_time * self.velocity)  + (0.5 * (elapsed_time**2) * new_accel)) # s1 = s0 + u0t + 0.5(a1)t^2
+		self.velocity = self.velocity + (elapsed_time * new_accel) # u1 = u0 + (a1)t
+		self.acceleration = new_accel 
+
+
+	# gets diplacements. Returns a vector
+	def getDisplacement(self):
+		s = self.displacement
+		return Vector3D(s[0], s[1], s[2]) 
+
+	def getVelocity(self):
+		v = self.velocity
+		return Vector3D(v[0], v[1], v[2]) 
+
+
+class PeriodicPrinter():
+	# period is seconds
+	def __init__(self, period):
+		self.period = period
+		self.curr_time = time.time()
+
+	def printVal(self, val):
+		t = time.time()
+		if t - self.curr_time > self.period:
+			print val
+			self.curr_time = t
 
 
 
@@ -241,21 +297,19 @@ class UARTStream():
 		self.read_remainder = self.read_remainder[self.read_remainder.find(lim)+1:]
 		return ret
 
-
+	def readBetween(self, start_char, end_char):
+		self.readUntil(start_char)
+		return "{}{}".format(start_char, self.readUntil(end_char))
+		
 	def write(self, write_str):
 		self.uart.write(write_str)
 
 # assumes data_str = '[x,y,z]'
 def parseSensorData(data_str):
-	data_str = data_str[1:len(data_str)-1]
-	vect = Vector3D()
-	vals = data_str.split(",")
+	vals = eval(data_str)
 	if len(vals) != 3:
 		assert False, "Parsed Bad Sensor Data"
-	
-	vect.x = float(val[0])
-	vect.y = float(val[1])
-	vect.z = float(val[2])
+	vect = Vector3D(vals[0],vals[1], vals[2])
 	return vect
 
 
@@ -271,8 +325,28 @@ def userInputHandler():
 	return 
 
 
+def plotSensorData(sensor_data):
+	# x_hist = np.histogram(sensor_data[:,0])
+	print "Plotting..."
+	sensor_data = np.array(sensor_data)
+	data = sensor_data[:,0]
+	plt.hist(data, bins=np.arange(data.min(), data.max()+1))
+	plt.show()
+
+
+# sensor_data is a 2d array. saves to file defined in function
+def saveData(sensor_data):
+	filename = "./sensor_data.csv"
+	np.savetxt(filename, sensor_data, delimiter=",")
+
+def loadData():
+	filename = "./sensor_data.csv"
+	return np.loadtxt(filename, delimiter=",")
+
+
 # polls sensors and starts user input handler thread
 def start_system():
+	global sensor_data
 	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")]
 	devices = getDevices(allowed_ids) # dict of uuid: device
 	# uarts are used to read and write data over bluetooth
@@ -280,18 +354,32 @@ def start_system():
 	packet_len = 20
 
 	uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
+	tracker = AccelTracker()
+	accel_printer = PeriodicPrinter(1.0)
 	try:
 		thread.start_new_thread(userInputHandler, ())
+		tracker.start()
 		while not end_program:
-			sensor_str = uart_stream.readUntil("]")
+			sensor_str = uart_stream.readBetween("[","]")
 			# print "Received: {}".format(sensor_str)
 			vect = parseSensorData(sensor_str)
-	except Exception as e:
-		print(e)
-		raise e
+			sensor_data.append(vect.toArray())
+			tracker.updateAccel(vect)
+			accel_printer.printVal("Displacement = {}".format(tracker.getDisplacement()))
+			# print "velocity: {}".format(tracker.getVelocity().toArray())
+
+	# except Exception as e:
+	#	print(e)
+#		raise e
 	finally:
 		for device in devices.values():
 			device.disconnect()
+		# plotSensorData(sensor_data)
+		saveData(sensor_data)
+
+
+
+
 
 
 #-----------------------------Execution-----------------------------
