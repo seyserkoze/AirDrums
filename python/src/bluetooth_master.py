@@ -703,10 +703,6 @@ def start_system():
 		saveData(sensor_data)
 
 
-
-
-
-
 #-----------------------------Execution-----------------------------
 
 def main():
