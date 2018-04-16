@@ -22,10 +22,12 @@
 
 /*--------------------Globals-------------------------------*/
 const char teensyLEDPin = 11 ;
-const int packet_len = 22 ;
+const int packet_len = 27 ; //4 time chars and 1 ,
 char packet_buf[packet_len + 1] ;
 
 const unsigned baud_rate = 115200 ;
+
+unsigned long last_time ; 
 
 //BLE variables
 const int cts_pin = 14 ;
@@ -196,12 +198,16 @@ imu::Vector<3> get_acceleration() {
 }
 
 
-String serialize_accel(imu::Vector<3> &accel) {
+String serialize_data(unsigned long elapsed_t, imu::Vector<3> &accel) {
   unsigned char width = 6 ;
   char prec = 4 ; 
   char *buf = packet_buf ;
   buf[0] = '[' ; 
-  buf = buf + 1  ; 
+  buf = buf + 1  ;
+  sprintf(buf, "%4lu", elapsed_t); // put time value at start of buf
+  buf[4] = ',' ;
+  buf = buf + 5 ; 
+  
   for(int i = 0 ; i < 3 ; i++) {
     // enter readings into buf
     if(i == X) {
@@ -221,11 +227,12 @@ String serialize_accel(imu::Vector<3> &accel) {
       buf[1] = 0 ; 
     }
   }
+  //Serial.println(packet_buf) ;
   return String(packet_buf) ;
 }
 
 
-char send_acceleration(String data) {
+char send_data(String data) {
   int len = data.length() ;
   if(len > packet_len) {
     Serial.println("Serialized data too long");
@@ -250,12 +257,15 @@ void setup() {
   pinMode(teensyLEDPin, OUTPUT) ;
   digitalWrite(teensyLEDPin, HIGH) ; //turn on status led on teensy
   ble_setup() ;
-  while(!imu_setup()) ; //spin until imu is setup 
+  while(!imu_setup()) ; //spin until imu is setup
+  last_time = millis() ;
 }
 
 void loop() {
   imu::Vector<3> sensor_data = get_acceleration() ;
-  send_acceleration(serialize_accel(sensor_data)) ; 
+  unsigned long elapsed_time = millis() - last_time ;
+  last_time = millis() ; 
+  send_data(serialize_data(elapsed_time, sensor_data)) ; 
 }
 
 
