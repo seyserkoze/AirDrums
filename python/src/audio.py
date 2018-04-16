@@ -38,7 +38,7 @@ class Audio:
             drum = args[0]
             volume = args[1]
             self.play_sound(drum, volume)
-            self.__task_queue.task_done()
+            # self.__task_queue.task_done()
 
     def __test(self):
         """
@@ -55,77 +55,7 @@ class Audio:
         self.__task_queue.put(('kick', 100))
         self.__task_queue.put(('crash', 100))
         self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('clap', 100))
-        self.__task_queue.put(('cowbell', 100))
-        self.__task_queue.put(('openhat', 100))
-        self.__task_queue.put(('ride', 100))
-        self.__task_queue.put(('crash', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('clap', 100))
-        self.__task_queue.put(('cowbell', 100))
-        self.__task_queue.put(('openhat', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('ride', 100))
-        self.__task_queue.put(('crash', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('clap', 100))
-        self.__task_queue.put(('cowbell', 100))
-        self.__task_queue.put(('openhat', 100))
-        self.__task_queue.put(('ride', 100))
-        self.__task_queue.put(('crash', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('hihat', 100))
-        self.__task_queue.put(('clap', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('cowbell', 100))
-        self.__task_queue.put(('openhat', 100))
-        self.__task_queue.put(('ride', 100))
-        self.__task_queue.put(('crash', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('kick', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tambo', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
-        self.__task_queue.put(('tom', 100))
+       
         self.__task_queue.join()
 
     def __init__(self, num_channels=20):
@@ -154,9 +84,17 @@ class Audio:
         pygame.mixer.set_num_channels(num_channels)
         for i in range(num_channels):
             t = Thread(target=self.__worker)
-            t.setDaemon(True)
+            t.setDaemon(False)
             t.start()
-        self.__test()
+        # self.__test()
+
+    def queue_sound(self, drum, volume):
+        """
+        used externally to add sound for playing
+        """
+        self.__task_queue.put((drum, volume))
+
+
         
 
-test = Audio()
+# test = Audio()
