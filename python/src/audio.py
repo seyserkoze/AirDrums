@@ -13,12 +13,11 @@ class Audio:
     and multi-threaded processing
     """
 
-
-def play_sound(self, drum, volume, attack):
+def play_sound(self, drum, attack):
     """
     plays audio given drum type from map given above and volume from 0 to 100 using threads
     :param drum: type of drum
-    :param volume: volume from 0 to 100
+    :param attck: attack/volume from 0 to 7
     :return: nothing - plays sound
     """
     get_dir = os.path.dirname
@@ -26,7 +25,6 @@ def play_sound(self, drum, volume, attack):
     directory = os.path.join(get_dir(get_dir(get_dir(current))), 'samples')
     file_name = os.path.join(directory, drum, drum + str(attack) + '.wav')
     sound = pygame.mixer.Sound(file_name)
-    sound.set_volume(volume / 100.0)
     channel = sound.play()
     while channel.get_busy():
         sleep(0.0001)
@@ -40,75 +38,9 @@ def __worker(self):
     while True:
         (args) = self.__task_queue.get()
         drum = args[0]
-        volume = args[1]
-        attack = args[2]
-        self.play_sound(drum, volume, attack)
+        attack = args[1]
+        self.play_sound(drum, attack)
         self.__task_queue.task_done()
-
-
-def __test(self):
-    """
-    tests audio
-    :return: None
-    """
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('hitoms', 100, 7))
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('snare', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('ride', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('lotoms', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.put(('hihats', 100, 7))
-    self.__task_queue.join()
 
 
 def __init__(self, num_channels=20):
@@ -124,7 +56,6 @@ def __init__(self, num_channels=20):
         t = Thread(target=self.__worker)
         t.setDaemon(True)
         t.start()
-    self.__test()
 
 
 test = Audio()
