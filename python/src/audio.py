@@ -18,7 +18,7 @@ class Audio:
         """
         plays audio given drum type from map given above and volume from 0 to 100 using threads
         :param drum: type of drum
-        :param attck: attack/volume from 0 to 7
+        :param attack: attack/volume from 0 to 7
         :return: nothing - plays sound
         """
         get_dir = os.path.dirname
