@@ -26,6 +26,7 @@ class Communication:
     def send(self, msg):
         """
         sends message to connection
+        non-blocking!
         :param msg: message to be sent
         """
         self.__write_queue.put(msg)
@@ -33,6 +34,7 @@ class Communication:
     def recv(self):
         """
         receives message from connection
+        non-blocking!
         :return: None if no message otherwise returns oldest message not yet read
         """
         try:
