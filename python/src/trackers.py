@@ -79,7 +79,7 @@ class AccelTracker():
 
 
 class DrumPulseTracker():
-	def __init__(self, amp_floor, amp_ceiling, pulse_window, name=""):
+	def __init__(self, amp_floor, amp_ceiling, pulse_window, name="", debug=False):
 		"""
 		analyse acceleration amplitude values for a single axis
 		Pulse detected if a ceiling follows a floor within a pulse window
@@ -141,6 +141,7 @@ class DrumPulseTracker():
 		"""
 		Resets state variables and checks for start of pulse using accel_amp
 		"""
+		# print "{} Pulse restart".format(self.name)
 		self.floor_detected = False
 		self.ceiling_detected = False
 		self._pulseStart(accel_amp) # check for pulse start
@@ -258,8 +259,8 @@ class PositionalTracker():
 class XPositionalTracker(PositionalTracker):
 	def __init__(self, start, lo, hi):
 		PositionalTracker.__init__(self, start,lo,hi)
-		pulse_window = 6
-		x_floor = -8.0
+		pulse_window = 15
+		x_floor = -7.0
 		x_ceil = 8.0 
 		self.leftPulseTracker = DrumPulseTracker(x_floor, x_ceil, pulse_window, name="x_left")
 		self.rightPulseTracker = DrumPulseTracker(x_floor, x_ceil, pulse_window, name="x_right")
@@ -271,6 +272,7 @@ class XPositionalTracker(PositionalTracker):
 
 
 	def _sizeOfMove(self, max_amp):
+		# print "X max:", max_amp
 		if abs(max_amp) > self.double_move:
 			return 2
 		else:
@@ -300,11 +302,11 @@ class XPositionalTracker(PositionalTracker):
 class YPositionalTracker(PositionalTracker):
 	def __init__(self, start, lo, hi):
 		PositionalTracker.__init__(self, start,lo,hi)
-		pulse_window = 6
-		y_floor = -8.0
-		y_ceil = 8.0 
-		self.upPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_left")
-		self.downPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_right")
+		pulse_window = 8
+		y_floor = -6.0
+		y_ceil = 6.0 
+		self.upPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_up")
+		self.downPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_down")
 		self.double_move = 60
 	
 	def start(self):
@@ -313,6 +315,7 @@ class YPositionalTracker(PositionalTracker):
 
 
 	def _sizeOfMove(self, max_amp):
+		# print "y max amp: ", max_amp
 		if abs(max_amp) > self.double_move:
 			return 2
 		else:
@@ -325,7 +328,7 @@ class YPositionalTracker(PositionalTracker):
 		"""	
 		old_pulse = self.upPulseTracker.getPulseID()
 		if self.upPulseTracker.update(t, accel) != old_pulse:
-			return self._sizeOfMove(self.upPulseTracker.getPulseAmp())
+			return -self._sizeOfMove(self.upPulseTracker.getPulseAmp()) # moving up is negative value
 		return 0
 
 	def _movedBackward(self,t, accel):
@@ -335,5 +338,17 @@ class YPositionalTracker(PositionalTracker):
 		# negate the acceleration values as a ceiling is detected first in a left move
 		old_pulse = self.downPulseTracker.getPulseID()
 		if self.downPulseTracker.update(t,-accel) != old_pulse:
-			return self._sizeOfMove(self.downPulseTracker.getPulseAmp())
+			# print "Y tracker: ", self._sizeOfMove(self.downPulseTracker.getPulseAmp())
+			return -self._sizeOfMove(self.downPulseTracker.getPulseAmp())
+		# print "Y tracker: ", self._sizeOfMove(self.downPulseTracker.getPulseAmp())
 		return 0
+
+
+"""
+# x_vals = [0, 5,10 ,5, 0, -10, 5,10, 5,0,0]
+x_vals = [-10, 10, 0, 0,0,10, 40, 0, -10, 0]
+xpt = XPositionalTracker(1,0,2)
+for (i,x) in enumerate(x_vals):
+	xpt.update(i,x)
+	print (xpt.getPosition())
+"""

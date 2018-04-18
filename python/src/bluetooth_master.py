@@ -1,10 +1,11 @@
-import Adafruit_BluefruitLE
-from Adafruit_BluefruitLE.services import UART, DeviceInformation
-import time
-import atexit
-from uuid import UUID
 import thread
+import time
+from uuid import UUID
+
+import Adafruit_BluefruitLE
 import numpy as np
+
+from Adafruit_BluefruitLE.services import UART, DeviceInformation
 from audio import Audio
 from trackers import DrumPulseTracker, XPositionalTracker, YPositionalTracker
 
@@ -13,8 +14,9 @@ end_program = False
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
 sensor_data = []
-drum_config = [["snare", "lotoms", "crash"],
-				["ride", "kick", "hihats"]]
+# should contain 1 of each "crash, hihats, hitoms, lotoms, ride, snare"
+drum_config = [["hitoms", "lotoms", "crash"],
+				["ride", "snare", "hihats"]]
 
 #----------------------Debugging functions---------------------
 
@@ -40,7 +42,7 @@ def saveData(sensor_data):
 	np.savetxt(filename, sensor_data, delimiter=",")
 
 
-#-----------------------Examples------------------------------
+# -----------------------Examples------------------------------
 # prints device info
 def device_info():
     # Clear any cached data because both bluez and CoreBluetooth have issues with
@@ -72,7 +74,7 @@ def device_info():
 
     print('Connecting to device...')
     device.connect()  # Will time out after 60 seconds, specify timeout_sec parameter
-                      # to change the timeout.
+    # to change the timeout.
 
     # Once connected do everything else in a try/finally to make sure the device
     # is disconnected when done.
@@ -99,7 +101,6 @@ def device_info():
     finally:
         # Make sure device is disconnected on exit.
         device.disconnect()
-
 
 
 # Main function implements the program logic so it can run in a background
@@ -137,10 +138,10 @@ def uart_service():
 
 	print('Connecting to device...')
 	device.connect()  # Will time out after 60 seconds, specify timeout_sec parameter
-	                  # to change the timeout.
+	# to change the timeout.
 
-    # Once connected do everything else in a try/finally to make sure the device
-    # is disconnected when done.
+	# Once connected do everything else in a try/finally to make sure the device
+	# is disconnected when done.
 	try:
 	    # Wait for service discovery to complete for the UART service.  Will
 	    # time out after 60 seconds (specify timeout_sec parameter to override).
@@ -196,7 +197,7 @@ class Vector3D():
 
 # returns the devices in device_ids as a dictionary of id: device
 def getDevices(device_ids, timeout=20):
-	# Get the first available BLE network adapter and make sure it's powered on.
+    # Get the first available BLE network adapter and make sure it's powered on.
     adapter = ble.get_default_adapter()
     adapter.power_on()
     print('Using adapter: {0}'.format(adapter.name))
@@ -213,72 +214,74 @@ def getDevices(device_ids, timeout=20):
     try:
         adapter.start_scan()
         time_elapsed = 0
-        while(time_elapsed < timeout and len(found) < len(device_ids)):
-        	devices = UART.find_devices()
-        	for d in devices:
-        		# d.id is a UUID object
-        		if d.id in to_find: #check if id in id_set
-        			found.add(d) # add device to found
-        	time.sleep(1.0)
-        	time_elapsed += 1
+        while (time_elapsed < timeout and len(found) < len(device_ids)):
+            devices = UART.find_devices()
+            for d in devices:
+                # d.id is a UUID object
+                if d.id in to_find:  # check if id in id_set
+                    found.add(d)  # add device to found
+            time.sleep(1.0)
+            time_elapsed += 1
         for device in found:
-        	device.connect()
-        	print("Discovering UART service for {}".format(device.id))
-        	UART.discover(device)
+            device.connect()
+            print("Discovering UART service for {}".format(device.id))
+            UART.discover(device)
     except:
-    	for device in found:
-    		# Make sure device is disconnected 
-    		device.disconnect()
-    	raise RuntimeError('Error Connecting to devices. Terminating ...')
+        for device in found:
+            # Make sure device is disconnected
+            device.disconnect()
+        raise RuntimeError('Error Connecting to devices. Terminating ...')
     finally:
         # Make sure scanning is stopped before exiting.
         adapter.stop_scan()
-   	return {device.id: device for device in found}
+        return {device.id: device for device in found}
+
 
 
 class UARTStream():
-	def __init__(self, device, uart):
-		self.device = device
-		self.uart = uart
-		self.read_remainder = ""
+    def __init__(self, device, uart):
+        self.device = device
+        self.uart = uart
+        self.read_remainder = ""
 
-	# returns the last n bytes read. Blocks until n bytes read
-	def readNBytes(self, n):
-		bytes_read = len(self.read_remainder)
-		timeout = 60
-		str_arr = [self.read_remainder] if bytes_read > 0 else [] # holds all read strings
-		while bytes_read < n:
-			received = self.uart.read(timeout_sec=timeout)
-			if received is not None:
-				str_arr.append(received)
-				bytes_read += len(received) # increment num bytes read
-		self.read_remainder = "".join(str_arr)
-		ret = self.read_remainder[0:n]
-		self.read_remainder = self.read_remainder[n:]
-		return ret
+    # returns the last n bytes read. Blocks until n bytes read
+    def readNBytes(self, n):
+        bytes_read = len(self.read_remainder)
+        timeout = 60
+        str_arr = [self.read_remainder] if bytes_read > 0 else []  # holds all read strings
+        while bytes_read < n:
+            received = self.uart.read(timeout_sec=timeout)
+            if received is not None:
+                str_arr.append(received)
+                bytes_read += len(received)  # increment num bytes read
+        self.read_remainder = "".join(str_arr)
+        ret = self.read_remainder[0:n]
+        self.read_remainder = self.read_remainder[n:]
+        return ret
 
-	# read until next limiter lim and returns string including lim. 
-	# Blocks until first lim encountered
-	def readUntil(self, lim):
-		timeout = 60
-		str_arr = [self.read_remainder]
-		while True:
-			received = self.uart.read(timeout_sec= timeout)
-			if received is not None:
-				str_arr.append(received)
-				if lim in received:
-					break
-		self.read_remainder = "".join(str_arr)
-		ret = self.read_remainder[0:self.read_remainder.find(lim)+1]
-		self.read_remainder = self.read_remainder[self.read_remainder.find(lim)+1:]
-		return ret
+    # read until next limiter lim and returns string including lim.
+    # Blocks until first lim encountered
+    def readUntil(self, lim):
+        timeout = 60
+        str_arr = [self.read_remainder]
+        while True:
+            received = self.uart.read(timeout_sec=timeout)
+            if received is not None:
+                str_arr.append(received)
+                if lim in received:
+                    break
+        self.read_remainder = "".join(str_arr)
+        ret = self.read_remainder[0:self.read_remainder.find(lim) + 1]
+        self.read_remainder = self.read_remainder[self.read_remainder.find(lim) + 1:]
+        return ret
 
-	def readBetween(self, start_char, end_char):
-		self.readUntil(start_char)
-		return "{}{}".format(start_char, self.readUntil(end_char))
-		
-	def write(self, write_str):
-		self.uart.write(write_str)
+    def readBetween(self, start_char, end_char):
+        self.readUntil(start_char)
+        return "{}{}".format(start_char, self.readUntil(end_char))
+
+    def write(self, write_str):
+        self.uart.write(write_str)
+
 
 
 class DrumSoundMapper:
@@ -313,9 +316,7 @@ class DrumSoundMapper:
 		Return the correct drum type based on drum configuration defined by drums_arr and assumption
 		of a 2 x 3 drum grid
 		"""
-		start_x = 1
-		start_y = 1
-		return self.drums_arr[start_y + y_pos][start_x + x_pos]
+		return self.drums_arr[y_pos, x_pos]
 
 
 	def getDrumSound(self, x_pos, y_pos, accel):
@@ -323,28 +324,27 @@ class DrumSoundMapper:
 		Given x_pos, y_pos and acceleration. x_pos and y_pos should be ints in 
 		range [-1, 1] and [0,1] respectively
 		"""
-		return (self,_drumType(x_pos, y_pos), self._attackValues(accel))
+		return (self._drumType(x_pos, y_pos), self._attackValue(accel))
 
 # assumes data_str = '[x,y,z]'
 # return (t in seconds, np.array[x,y,z]) 
 def parseSensorData(data_str):
-	vals = eval(data_str)
+    vals = eval(data_str)
 
-	if len(vals) != 4:
-		assert False, "Parsed Bad Sensor Data"
-	t = vals[0] # time in milliseconds
-	return (t / 1000.0, np.array([vals[1],vals[2], vals[3]]))
-
+    if len(vals) != 4:
+        assert False, "Parsed Bad Sensor Data"
+    t = vals[0]  # time in milliseconds
+    return (t / 1000.0, np.array([vals[1], vals[2], vals[3]]))
 
 def userInputHandler():
-	print "Starting input handler"
-	global end_program
-	while 1:
-		cmd = raw_input()
-		if cmd == 'q': #quit program
-			end_program = True
-			return
-	return 
+    print "Starting input handler"
+    global end_program
+    while 1:
+        cmd = raw_input()
+        if cmd == 'q':  # quit program
+            end_program = True
+            return
+    return
 
 
 # polls sensors and starts user input handler thread
@@ -358,13 +358,13 @@ def start_system():
 
 	uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
 	# tracker = AccelTracker()
-	x_tracker = XPositionalTracker(0, -1, 1)
-	y_tracker = YPositionalTracker(0, 0, 1)
-	z_tracker = DrumPulseTracker(-10.0, 6.0, 6, name="z")
+	x_tracker = XPositionalTracker(1, 0, 2)
+	y_tracker = YPositionalTracker(1, 0, 1)
+	z_tracker = DrumPulseTracker(-7.0, 8.0, 7, name="z")
 	sound_mapper = DrumSoundMapper(drum_config, (0, 60))
 	try:
 		thread.start_new_thread(userInputHandler, ())
-		audio_player = Audio(5)
+		audio_player = Audio(10)
 		accel_diff = np.array([0.0,0.0,0.0]) # assume starts from 0 
 		accel_raw = None
 		z_id = None
@@ -397,7 +397,7 @@ def start_system():
 				print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
 				print "X pos ", x_pos 
 				print "Y pos", y_pos
-				sound = sound_mapper.getDrumSound(z_tracker.getPulseAmp(),x_pos, y_pos)
+				sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
 				print "Playing: ", sound
 				audio_player.queue_sound(sound)
 
@@ -414,25 +414,25 @@ def start_system():
 		saveData(sensor_data)
 
 
-#-----------------------------Execution-----------------------------
+
 
 def main():
-	# Clear any cached data because both bluez and CoreBluetooth have issues with
+    # Clear any cached data because both bluez and CoreBluetooth have issues with
     # caching data and it going stale.
-	ble.clear_cached_data()
-	# call desired function here
-	start_system()
-	return
+    ble.clear_cached_data()
+    # call desired function here
+    start_system()
+    return
 
 
 def run():
-	# Initialize the BLE system.  MUST be called before other BLE calls!
-	ble.initialize()
+    # Initialize the BLE system.  MUST be called before other BLE calls!
+    ble.initialize()
 
-	# Start the mainloop to process BLE events, and run the provided function in
-	# a background thread.  When the provided main function stops running, returns
-	# an integer status code, or throws an error the program will exit.
-	ble.run_mainloop_with(main)
+    # Start the mainloop to process BLE events, and run the provided function in
+    # a background thread.  When the provided main function stops running, returns
+    # an integer status code, or throws an error the program will exit.
+    ble.run_mainloop_with(main)
 
 
 run()

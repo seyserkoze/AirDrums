@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from trackers import *
 
 
 def plotSensorData(sensor_data, col=0, binstep=0.1):
@@ -38,10 +39,39 @@ def plotAllAccelOverTime(sensor_data):
 		plt.title(titles[col])
 	plt.show() 
 
+
+def simulatePos(sensor_data):
+	xpt = XPositionalTracker(1,0,2)
+	ypt = YPositionalTracker(1,0,1)
+	zpt = DrumPulseTracker(-7.0, 8.0, 7, name="z")
+	xpt.start()
+	ypt.start()
+	zpt.start()
+	t = 0
+	x_pos = []
+	z_hit = []
+	for (x,y,z) in sensor_data:
+		xpt.update(t, x)
+		ypt.update(t,y)
+		zpt.update(t, z)
+		x_pos.append(xpt.getPosition())
+		z_hit.append(zpt.getPulseID())
+		t += 1
+	print x_pos
+	# print [z if z is not None else 0 for z in z_hit]
+	return 
+
 filename = "./sensor_data.csv"
 sensor_data = np.loadtxt(filename, delimiter=",")
 # print sensor_data[20:30, :]
 #plotSensorData(sensor_data, col=0, binstep=0.01)
 #plotAccelOverTime(sensor_data, col=0)
 #plotAllData(sensor_data)
+# print sensor_data[45:68, 0]
+simulatePos(sensor_data)
 plotAllAccelOverTime(sensor_data)
+
+
+
+
+
