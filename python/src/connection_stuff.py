@@ -22,46 +22,48 @@ def drumVal():
 def dataReady():
 	return 1
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(('localhost', 50000))
 
-print "Listening...\n"
-s.listen(1)
 
-conn, addr = s.accept()
-print "accepted..\n"
+def start_handler():
+	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	s.bind(('localhost', 50000))
 
-while 1:
-	data = conn.recv(4)
+	print "Listening...\n"
+	s.listen(1)
 
-	#send data about vector information
-	if (data == 'SEND'):
-		print "sending to client...\n"
+	conn, addr = s.accept()
+	print "accepted..\n"
 
-		if dataReady():
-			conn.sendall(sendVals())
-			time.sleep(1)
+	while 1:
+		data = conn.recv(4)
 
-	#receiving data about drumlist from server
-	elif (data == 'READ'):
-		print "reading from client...\n"
-		drumlist = conn.recv(1024)
-		print "drumlist is " + drumlist
+		#send data about vector information
+		if (data == 'SEND'):
+			print "sending to client...\n"
 
-	#drum hit indicator
-	elif (data == "DRUM"):
-		d = drumVal()
-		print "sending drum hit: " + d 
-		conn.sendall(d)
-		time.sleep(1)
+			if dataReady():
+				conn.sendall(sendVals())
+				time.sleep(1)
 
-	elif (data == "BACK"):
-		print "backed out from sending client data values.."
+		#receiving data about drumlist from server
+		elif (data == 'READ'):
+			print "reading from client...\n"
+			drumlist = conn.recv(1024)
+			print "drumlist is " + drumlist
 
-	elif (data == 'SHUT'):
-		print "shutting down.."
-		conn.shutdown(socket.SHUT_RDWR)
-		conn.close()
-		exit()
+		#drum hit indicator
+		elif (data == "DRUM"):
+			d = drumVal()
+			print "sending drum hit: " + d 
+			conn.sendall(d)
+
+		elif (data == "BACK"):
+			print "backed out from sending client data values.."
+
+		elif (data == 'SHUT'):
+			print "shutting down.."
+			conn.shutdown(socket.SHUT_RDWR)
+			conn.close()
+			break
 
 

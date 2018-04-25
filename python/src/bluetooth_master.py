@@ -1,5 +1,6 @@
 import thread
 import time
+import socket
 from uuid import UUID
 
 import Adafruit_BluefruitLE
@@ -8,6 +9,7 @@ import numpy as np
 from Adafruit_BluefruitLE.services import UART, DeviceInformation
 from audio import Audio
 from trackers import DrumPulseTracker, XPositionalTracker, YPositionalTracker
+from remote_input_handler import RemoteInputHandler
 
 # ---------------------------GLOBALS-----------------------------
 end_program = False
@@ -15,8 +17,10 @@ end_program = False
 ble = Adafruit_BluefruitLE.get_provider()
 sensor_data = []
 # should contain 1 of each "crash, hihats, hitoms, lotoms, ride, snare"
-drum_config = [["hitoms", "lotoms", "crash"],
+drum_config = None
+"""[["hitoms", "lotoms", "crash"],
 				["ride", "snare", "hihats"]]
+"""
 
 #----------------------Debugging functions---------------------
 
@@ -176,6 +180,18 @@ def uart_service():
 
 
 
+# --------------------- Input handlers -------------------------
+
+def userInputHandler():
+    print "Starting input handler"
+    global end_program
+    while 1:
+        cmd = raw_input()
+        if cmd == 'q':  # quit program
+            end_program = True
+            return
+    return
+
 
 #-----------------------------MAIN Code-----------------------------
 
@@ -326,6 +342,7 @@ class DrumSoundMapper:
 		"""
 		return (self._drumType(x_pos, y_pos), self._attackValue(accel))
 
+
 # assumes data_str = '[x,y,z]'
 # return (t in seconds, np.array[x,y,z]) 
 def parseSensorData(data_str):
@@ -336,15 +353,63 @@ def parseSensorData(data_str):
     t = vals[0]  # time in milliseconds
     return (t / 1000.0, np.array([vals[1], vals[2], vals[3]]))
 
-def userInputHandler():
-    print "Starting input handler"
-    global end_program
-    while 1:
-        cmd = raw_input()
-        if cmd == 'q':  # quit program
-            end_program = True
-            return
-    return
+
+# true if system is ready to start
+def system_ready(remote_handler):
+	return remote_handler.get_drum_config() is not None
+
+
+# blocking call that starts drumming system
+def start_drums(drum_config, remote_handler):
+	sound_mapper = DrumSoundMapper(drum_config, (0, 60))
+	audio_player = Audio(10)
+	accel_diff = np.array([0.0,0.0,0.0]) # assume starts from 0 
+	accel_raw = None
+	z_id = None
+	# init trackers
+	x_tracker = XPositionalTracker(1, 0, 2)
+	y_tracker = YPositionalTracker(1, 0, 1)
+	z_tracker = DrumPulseTracker(-7.0, 8.0, 7, name="z")
+	x_tracker.start()
+	y_tracker.start()
+	z_tracker.start()
+
+	while not end_program and not remote_handler.received_quit():
+		sensor_str = uart_stream.readBetween("[","]")
+		# print "Received: {}".format(sensor_str)
+		(t,accel_new) = parseSensorData(sensor_str)
+
+		# perform differencing logic to remove systematic errors
+		if accel_raw is None: # first sensor reading
+			accel_raw = accel_new
+			continue # skip this iteration
+		else: # perform differencing on readings to remove systematic errors
+			accel_grad = (accel_new - accel_raw) / t
+			accel_raw = accel_new # update accel_raw value to current reading
+			accel_diff += (accel_grad * t) # update accel_diff
+
+		x,y,z = accel_diff
+		remote_handler.update_accel(accel_diff)
+		x_tracker.update(t, x)
+		y_tracker.update(t, y)
+		# if drum_config is provided and 
+		if z_tracker.update(t, z) != z_id:
+			z_id = z_tracker.getPulseID()
+			x_pos = x_tracker.getPosition()
+			y_pos = y_tracker.getPosition()
+			print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
+			print "X pos ", x_pos 
+			print "Y pos", y_pos
+			sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
+			remote_handler.update_last_drum(x_pos, y_pos)
+			last_drum = (y_pos * 3) + x_pos
+			print "Playing: ", sound
+			audio_player.queue_sound(sound)
+
+		collectData(x,y,z)
+		# sensor_data.append(vect.toArray())
+		# accel_printer.printVal("Displacement = {}".format(tracker.getDisplacement()))
+
 
 
 # polls sensors and starts user input handler thread
@@ -358,52 +423,19 @@ def start_system():
 
 	uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
 	# tracker = AccelTracker()
-	x_tracker = XPositionalTracker(1, 0, 2)
-	y_tracker = YPositionalTracker(1, 0, 1)
-	z_tracker = DrumPulseTracker(-7.0, 8.0, 7, name="z")
-	sound_mapper = DrumSoundMapper(drum_config, (0, 60))
 	try:
+		# start data handlers
 		thread.start_new_thread(userInputHandler, ())
-		audio_player = Audio(10)
-		accel_diff = np.array([0.0,0.0,0.0]) # assume starts from 0 
-		accel_raw = None
-		z_id = None
-		
-		# init trackers
-		# x_tracker.start()
-		# y_tracker.start()
-		z_tracker.start()
-		while not end_program:
-			sensor_str = uart_stream.readBetween("[","]")
-			# print "Received: {}".format(sensor_str)
-			(t,accel_new) = parseSensorData(sensor_str)
+		remote_handler = RemoteInputHandler()
+		remote_handler.start()
+		# spin until system is ready
+		while not system_ready(remote_handler):
+			if end_program or remote_handler.received_quit():
+				break
+		if not end_program and not remote_handler.received_quit():
+			# onlys start drums if user has not quit
+			start_drums() # returns when received a quit signal
 
-			# perform differencing logic to remove systematic errors
-			if accel_raw is None: # first sensor reading
-				accel_raw = accel_new
-				continue # skip this iteration
-			else: # perform differencing on readings to remove systematic errors
-				accel_grad = (accel_new - accel_raw) / t
-				accel_raw = accel_new # update accel_raw value to current reading
-				accel_diff += (accel_grad * t) # update accel_diff
-
-			x,y,z = accel_diff
-			x_tracker.update(t, x)
-			y_tracker.update(t, y)
-			if z_tracker.update(t, z) != z_id:
-				z_id = z_tracker.getPulseID()
-				x_pos = x_tracker.getPosition()
-				y_pos = y_tracker.getPosition()
-				print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
-				print "X pos ", x_pos 
-				print "Y pos", y_pos
-				sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
-				print "Playing: ", sound
-				audio_player.queue_sound(sound)
-
-			collectData(x,y,z)
-			# sensor_data.append(vect.toArray())
-			# accel_printer.printVal("Displacement = {}".format(tracker.getDisplacement()))
 	#except Exception as e:
 	#	print(e)
 	#	raise e
