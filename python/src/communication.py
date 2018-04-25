@@ -59,3 +59,24 @@ class Communication:
         while True:
             msg = self.__write_queue.get()
             self.__connection.send(msg)
+
+"""
+
+def f(conn):
+    com = Communication(conn)
+    i = 0
+    while True:
+        i += 1
+        com.send(i)
+
+from multiprocessing import Pipe, Process
+a, b = Pipe()
+aComm = Communication(a)
+p = Process(target=f, args=(b,))
+p.start() 
+while True:
+    msg = aComm.recv()
+    if msg is not None:
+        print msg
+        """
+
