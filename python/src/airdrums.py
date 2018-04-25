@@ -130,7 +130,7 @@ class AirDrums(EventBasedAnimationClass):
 			if (self.between(891, 664, 938, 710)):
 				for s in self.currSelected:
 
-					self.finalDrumList[s] = "lotom"
+					self.finalDrumList[s] = "lotoms"
 
 				print self.finalDrumList
 				self.selectLoToms = False
@@ -142,7 +142,7 @@ class AirDrums(EventBasedAnimationClass):
 			if (self.between(891, 604, 938, 650)):
 				for s in self.currSelected:
 
-					self.finalDrumList[s] = "hitom"
+					self.finalDrumList[s] = "hitoms"
 
 				print self.finalDrumList
 				self.selectHiToms = False
@@ -164,7 +164,7 @@ class AirDrums(EventBasedAnimationClass):
 			if (self.between(891, 604, 938, 650)):
 				for s in self.currSelected:
 
-					self.finalDrumList[s] = "hihat"
+					self.finalDrumList[s] = "hihats"
 
 				print self.finalDrumList
 				self.selectHiHats = False
