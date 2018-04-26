@@ -360,8 +360,8 @@ def system_ready(remote_handler):
 
 
 # blocking call that starts drumming system
-def start_drums(drum_config, remote_handler):
-	sound_mapper = DrumSoundMapper(drum_config, (0, 60))
+def start_drums(remote_handler, uart_stream):
+	sound_mapper = DrumSoundMapper(remote_handler.get_drum_config(), (0, 60))
 	audio_player = Audio(10)
 	accel_diff = np.array([0.0,0.0,0.0]) # assume starts from 0 
 	accel_raw = None
@@ -373,7 +373,6 @@ def start_drums(drum_config, remote_handler):
 	x_tracker.start()
 	y_tracker.start()
 	z_tracker.start()
-
 	while not end_program and not remote_handler.received_quit():
 		sensor_str = uart_stream.readBetween("[","]")
 		# print "Received: {}".format(sensor_str)
@@ -434,7 +433,7 @@ def start_system():
 				break
 		if not end_program and not remote_handler.received_quit():
 			# onlys start drums if user has not quit
-			start_drums() # returns when received a quit signal
+			start_drums(remote_handler, uart_stream) # returns when received a quit signal
 
 	#except Exception as e:
 	#	print(e)

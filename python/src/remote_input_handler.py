@@ -36,10 +36,10 @@ class RemoteInputHandler:
 			data = conn.recv(4)
 
 			#send data about vector information
-			if (data == 'SEND'):
-				print "sending to client...\n"
+			if (data == 'TEST'):
+				print "sending to client...\n", self.sendVals()
 				conn.sendall(self.sendVals())
-				time.sleep(1)
+				# time.sleep(1)
 
 			#receiving data about drumlist from server
 			elif (data == 'READ'):
@@ -56,6 +56,7 @@ class RemoteInputHandler:
 
 			elif (data == "BACK"):
 				print "backed out from sending client data values.."
+				# conn.sendall("") # 
 
 			elif (data == 'SHUT'):
 				print "shutting down.."

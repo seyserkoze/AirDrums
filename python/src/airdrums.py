@@ -35,8 +35,12 @@ class AirDrums(EventBasedAnimationClass):
 		try:
 			self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.connection.connect(('localhost', 50000))	
+			# print "Made connection"
 		except:
 			print "no socket found"
+		
+		# self.connection.sendall('READ')
+		# self.connection.sendall("hitoms lotoms crash ride snare hihats")
 
 	#booleans for screen changes
 	def initScreenVals(self):
@@ -243,6 +247,7 @@ class AirDrums(EventBasedAnimationClass):
 		self.draw_circle(xgap, ygap, xoffset, yoffset, 5, self.width/9)
 
 	def redrawAll(self):
+		# print "Redrawing"
 		canvas=self.canvas
 		canvas.delete(ALL)
 
