@@ -31,10 +31,6 @@ categories: Capstone Update
 
 * Completed the protocol so that the frontend and backend can successfully communicated with each other in real time
 
-* Helped in debugging communication
+* Helped in debugging communication and frontend processes.
 
- 
-* Contributed to inter process communication protocol between frontend and backend programs
-
-* Debugged and improved frontend 
 
