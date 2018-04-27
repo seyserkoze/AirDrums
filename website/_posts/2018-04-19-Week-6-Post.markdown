@@ -6,16 +6,28 @@ categories: Capstone Update
 ---
 ## Avi: ## 
 
+* Created Communication API for handling messages between multiple processes
+
+* Tuned performance of hit detection system
+
+* Updated Audio API to use only attack values
 
 
 
 ## Samuel: ## 
 
+* Extended functionality of drum hit detection to perform with multiple drums
 
+* Added mapping functionality from drum hit detection to drum type and attack values
+
+* Performed evaluation tests on hit detection system
+
+* Tuned performance of hit detection system
 
 
 ## Shaurya: ##
 
 * Added customization functionality to frontend of app that allows user to customize their own drum set
+
 * Working on frontend to backend communication via multiprocessing libraries in Python
 
