@@ -27,6 +27,13 @@ categories: Capstone Update
 
 ## Shaurya: ##
 
+* Reworked and updated socket protocol that managed communication between frontend and backend
+
+* Completed the protocol so that the frontend and backend can successfully communicated with each other in real time
+
+* Helped in debugging communication
+
+ 
 * Contributed to inter process communication protocol between frontend and backend programs
 
 * Debugged and improved frontend 
