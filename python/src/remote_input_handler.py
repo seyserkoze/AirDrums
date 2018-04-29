@@ -1,6 +1,6 @@
 
 import socket
-import thread
+from threading import Thread
 
 class RemoteInputHandler:
 	def __init__(self):
@@ -15,12 +15,12 @@ class RemoteInputHandler:
 	# sends accel vals
 	def sendVals(self):
 		x,y,z = self.accel if self.accel is not None else [0,0,0]
-		word = (str(x)+ ' '+ str(y)+ ' '+ str(z))
+		word = (str(x) + ' ' + str(y) + ' ' + str(z))
 		return word
 
 	# return last drum hit
 	def drumVal(self):
-		return str(last_drum) if last_drum is not None else str(-1)
+		return str(self.last_drum) if self.last_drum is not None else str(-1)
 
 
 	def thread_fn(self):
@@ -32,9 +32,9 @@ class RemoteInputHandler:
 		conn, addr = sock.accept()
 		print "accepted..\n"
 
-		while 1:
+		while True:
 			data = conn.recv(4)
-
+			print 'here'
 			#send data about vector information
 			if (data == 'TEST'):
 				print "sending to client...\n", self.sendVals()
@@ -80,6 +80,10 @@ class RemoteInputHandler:
 		return self.end_program
 
 	def start(self):
-		thread.start_new_thread(self.thread_fn, ())
-		return
+		t = Thread(target=self.thread_fn)
+		t.start()
+		t.join()
 
+
+r = RemoteInputHandler()
+r.start()
