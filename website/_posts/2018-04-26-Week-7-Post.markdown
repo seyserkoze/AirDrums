@@ -1,0 +1,36 @@
+---
+layout: post
+title:  "Week 7 Blog Post"
+date:   2018-04-26 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+* Debugged communication protocol
+
+* Latency and Accuracy evaluation 
+
+* Started work on final presentation
+
+
+
+## Samuel: ## 
+
+* Contributed to inter process communication protocol between frontend and backend programs
+
+* Debugged communication protocol
+
+* Performance evaluation and system testing
+
+* Integrated battery into drumstick prototype
+
+
+## Shaurya: ##
+
+* Reworked and updated socket protocol that managed communication between frontend and backend
+
+* Completed the protocol so that the frontend and backend can successfully communicated with each other in real time
+
+* Helped in debugging communication and frontend processes.
+
+

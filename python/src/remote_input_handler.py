@@ -1,6 +1,6 @@
 
 import socket
-import thread
+from threading import Thread
 
 class RemoteInputHandler:
 	def __init__(self):
@@ -16,12 +16,22 @@ class RemoteInputHandler:
 	# sends accel vals
 	def sendVals(self):
 		x,y,z = self.accel if self.accel is not None else [0,0,0]
-		word = (str(x)+ ' '+ str(y)+ ' '+ str(z))
+		word = (str(x) + ' ' + str(y) + ' ' + str(z))
 		return word
 
 	# return last drum hit
 	def drumVal(self):
 		return str(self.last_drum) if self.last_drum is not None else str(-1)
+
+
+	"""
+	sn= snare, ri = ride, hh= hihats, ht = hitoms, lt = lotoms, cr = crash
+	"""
+	def drum_name(self, abbrev):
+		name = ""
+		mappings = {'sn':'snare', 'ri':'ride', 'hh':'hihats', 
+		'ht':'hitoms', 'lt':'lotoms', 'cr':'crash', "em":"empty"}
+		return mappings[abbrev] if abbrev in mappings else "empty"
 
 
 	def thread_fn(self):
@@ -35,7 +45,7 @@ class RemoteInputHandler:
 
 		while not self.quit:
 			data = conn.recv(4)
-
+			print 'here'
 			#send data about vector information
 			if (data == 'TEST'):
 				print "sending to client...\n", self.sendVals()
@@ -45,9 +55,11 @@ class RemoteInputHandler:
 			#receiving data about drumlist from server
 			elif (data == 'READ'):
 				print "reading from client...\n"
-				drumlist = conn.recv(1024)
+				drumlist_len = 17
+				drumlist = conn.recv(drumlist_len)
 				print "Received drum list: ", drumlist
-				self.drum_config = drumlist.split()
+				drumlist = drumlist.split()
+				self.drum_config = [self.drum_name for d in drumlist]
 
 			#drum hit indicator
 			elif (data == "DRUM"):
@@ -84,8 +96,9 @@ class RemoteInputHandler:
 		self.quit = True
 
 	def start(self):
-		thread.start_new_thread(self.thread_fn, ())
-		return
+		t = Thread(target=self.thread_fn)
+		t.start()
+
 
 # r = RemoteInputHandler()
 # r.start()
