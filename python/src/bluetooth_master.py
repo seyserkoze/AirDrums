@@ -434,7 +434,7 @@ def start_system():
 		if not end_program and not remote_handler.received_quit():
 			# onlys start drums if user has not quit
 			start_drums(remote_handler, uart_stream) # returns when received a quit signal
-
+		remote_handler.force_quit()
 	#except Exception as e:
 	#	print(e)
 	#	raise e

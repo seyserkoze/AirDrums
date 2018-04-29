@@ -10,7 +10,8 @@ class RemoteInputHandler:
 		self.end_program = False
 		self.host = 'localhost'
 		self.port = 50000
-		self.drums_per_row = 3 
+		self.drums_per_row = 3
+		self.quit = False
 
 	# sends accel vals
 	def sendVals(self):
@@ -20,7 +21,7 @@ class RemoteInputHandler:
 
 	# return last drum hit
 	def drumVal(self):
-		return str(last_drum) if last_drum is not None else str(-1)
+		return str(self.last_drum) if self.last_drum is not None else str(-1)
 
 
 	def thread_fn(self):
@@ -32,7 +33,7 @@ class RemoteInputHandler:
 		conn, addr = sock.accept()
 		print "accepted..\n"
 
-		while 1:
+		while not self.quit:
 			data = conn.recv(4)
 
 			#send data about vector information
@@ -79,7 +80,12 @@ class RemoteInputHandler:
 	def received_quit(self):
 		return self.end_program
 
+	def force_quit(self):
+		self.quit = True
+
 	def start(self):
 		thread.start_new_thread(self.thread_fn, ())
 		return
 
+# r = RemoteInputHandler()
+# r.start()
