@@ -19,23 +19,25 @@ class RemoteInputHandler:
 		word = (str(x) + ' ' + str(y) + ' ' + str(z))
 		return word
 
-	# return last drum hit
+	# return last drum hit. Resets last_drum to None after each call to ensure flashing in frontend
 	def drumVal(self):
-		return str(self.last_drum) if self.last_drum is not None else str(-1)
+		ret = str(self.last_drum) if self.last_drum is not None else str(-1)
+		self.last_drum = None # reset last_drum
+		return ret
 
+	def parseDrumVals(self, drumConfig):
+		finalresult = ["empty" for i in xrange(6)]
+		parseDict = {'sn' : 'snare', 'cr': 'crash', 'hh': 'hihats', 'ht': 'hitoms', 
+		'lt': 'lotoms', 'ri': 'ride', 'em': 'empty'}
 
-	"""
-	sn= snare, ri = ride, hh= hihats, ht = hitoms, lt = lotoms, cr = crash
-	"""
-	def drum_name(self, abbrev):
-		name = ""
-		mappings = {'sn':'snare', 'ri':'ride', 'hh':'hihats', 
-		'ht':'hitoms', 'lt':'lotoms', 'cr':'crash', "em":"empty"}
-		return mappings[abbrev] if abbrev in mappings else "empty"
-
+		for i in xrange(len(drumConfig)):
+			if(drumConfig[i] in parseDict):
+				finalresult[i] = parseDict[drumConfig[i]]
+		return finalresult
 
 	def thread_fn(self):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		drumsLength = 17
 		sock.bind((self.host, self.port))
 		print "Listening...\n"
 		sock.listen(1)
@@ -45,7 +47,6 @@ class RemoteInputHandler:
 
 		while not self.quit:
 			data = conn.recv(4)
-			print 'here'
 			#send data about vector information
 			if (data == 'TEST'):
 				print "sending to client...\n", self.sendVals()
@@ -55,16 +56,15 @@ class RemoteInputHandler:
 			#receiving data about drumlist from server
 			elif (data == 'READ'):
 				print "reading from client...\n"
-				drumlist_len = 17
-				drumlist = conn.recv(drumlist_len)
+				drumlist = conn.recv(drumsLength)
 				print "Received drum list: ", drumlist
-				drumlist = drumlist.split()
-				self.drum_config = [self.drum_name for d in drumlist]
+				self.drum_config = self.parseDrumVals(drumlist.split())
+				print "list of drums is " + str(self.drum_config)
 
 			#drum hit indicator
 			elif (data == "DRUM"):
 				d = self.drumVal()
-				print "sending drum hit: " + d 
+				# print "sending drum hit: " + d 
 				conn.sendall(d)
 
 			elif (data == "BACK"):
@@ -98,6 +98,8 @@ class RemoteInputHandler:
 	def start(self):
 		t = Thread(target=self.thread_fn)
 		t.start()
+
+
 
 
 # r = RemoteInputHandler()
