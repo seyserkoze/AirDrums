@@ -29,6 +29,7 @@ class AirDrums(EventBasedAnimationClass):
 		self.posZ = "NA"
 
 		self.finalDrumList= ["Empty" for i in xrange(6)]
+		self.sendDrumList = ["em" for i in xrange(6)]
 
 		self.initButtonActions()
 
@@ -114,6 +115,7 @@ class AirDrums(EventBasedAnimationClass):
 			if (self.between(891, 664, 938, 710)):
 				for s in self.currSelected:
 					self.finalDrumList[s] = "snare"
+					self.sendDrumList[s] = "sn"
 
 				print self.finalDrumList
 				self.resetDrumConfig()
@@ -124,6 +126,7 @@ class AirDrums(EventBasedAnimationClass):
 			if (self.between(891, 604, 938, 650)):
 				for s in self.currSelected:
 					self.finalDrumList[s] = "crash"
+					self.sendDrumList[s] = "cr"
 
 				print self.finalDrumList
 				self.selectCrash = False
@@ -135,6 +138,7 @@ class AirDrums(EventBasedAnimationClass):
 				for s in self.currSelected:
 
 					self.finalDrumList[s] = "lotoms"
+					self.sendDrumList[s] = "lt"
 
 				print self.finalDrumList
 				self.selectLoToms = False
@@ -147,6 +151,7 @@ class AirDrums(EventBasedAnimationClass):
 				for s in self.currSelected:
 
 					self.finalDrumList[s] = "hitoms"
+					self.sendDrumList[s] = "ht"
 
 				print self.finalDrumList
 				self.selectHiToms = False
@@ -158,6 +163,7 @@ class AirDrums(EventBasedAnimationClass):
 				for s in self.currSelected:
 
 					self.finalDrumList[s] = "ride"
+					self.sendDrumList[s] = "ri"
 
 				print self.finalDrumList
 				self.selectRide = False
@@ -169,12 +175,13 @@ class AirDrums(EventBasedAnimationClass):
 				for s in self.currSelected:
 
 					self.finalDrumList[s] = "hihats"
+					self.sendDrumList[s] = "hh"
 
 				print self.finalDrumList
 				self.selectHiHats = False
 				self.finalDrumScreen = True
 				self.connection.sendall('READ')
-				self.connection.sendall(' '.join(self.finalDrumList))
+				self.connection.sendall(' '.join(self.sendDrumList))
 				self.resetDrumConfig()
 
 		if (self.finalDrumScreen):
