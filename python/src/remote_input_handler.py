@@ -25,6 +25,7 @@ class RemoteInputHandler:
 
 	def thread_fn(self):
 		sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		drumsLength = 17
 		sock.bind((self.host, self.port))
 		print "Listening...\n"
 		sock.listen(1)
@@ -44,9 +45,11 @@ class RemoteInputHandler:
 			#receiving data about drumlist from server
 			elif (data == 'READ'):
 				print "reading from client...\n"
-				drumlist = conn.recv(1024)
+				drumlist = conn.recv(drumsLength)
 				print "Received drum list: ", drumlist
-				self.drum_config = drumlist.split()
+				self.drum_config = self.parseDrumVals(drumlist.split())
+
+				print "list of drums is " + str(self.drum_config)
 
 			#drum hit indicator
 			elif (data == "DRUM"):
@@ -83,6 +86,18 @@ class RemoteInputHandler:
 		t = Thread(target=self.thread_fn)
 		t.start()
 		t.join()
+
+	def parseDrumVals(self, drumConfig):
+
+		finalresult = [None for i in xrange(6)]
+		parseDict = {'sn' : 'snare', 'cr': 'crash', 'hh': 'hihats', 'ht': 'hitoms', 'lt': 'lotoms', 'ri': 'ride', 'em': 'empty'}
+
+		for i in xrange(len(drumConfig)):
+			finalresult[i] = parseDict[drumConfig[i]]
+
+		return finalresult
+
+
 
 
 r = RemoteInputHandler()
