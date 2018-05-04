@@ -6,12 +6,11 @@ categories: Capstone Update
 ---
 ## Avi: ## 
 
-* Debugged issues with multithreading during integration
-
 * Began integration of system to portable drumsticks
 
-* Final presentation
+* Soldering and desoldering of components
 
+* Final presentation
 
 
 ## Samuel: ## 
@@ -27,9 +26,9 @@ categories: Capstone Update
 
 ## Shaurya: ##
 
-* Fixed frontend sizing bugs
-
 * Began integration of system to portable drumsticks
+
+* Soldering and desoldering of components
 
 * Final presentation
 
