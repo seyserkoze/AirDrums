@@ -6,12 +6,16 @@ class RemoteInputHandler:
 	def __init__(self):
 		self.drum_config = None
 		self.accel = None
-		self.last_drum = None
 		self.end_program = Event()
 		self.host = 'localhost'
 		self.port = 50000
 		self.drums_per_row = 3
+		self.rows = 2
 		self.quit = Event()
+		# last drum hit for each stick. [0, 5] if drum was hit else >= 6 == no drum hit
+		self.last_drum1 = (self.rows) * self.drums_per_row
+		self.last_drum2 = self.last_drum1 
+
 
 	# sends accel vals
 	def sendVals(self):
@@ -21,9 +25,13 @@ class RemoteInputHandler:
 
 	# return last drum hit. Resets last_drum to None after each call to ensure flashing in frontend
 	def drumVal(self):
-		ret = str(self.last_drum) if self.last_drum is not None else str(-1)
-		self.last_drum = None # reset last_drum
-		return ret
+		max_val = (self.rows) * self.drums_per_row
+		d1 = str(self.last_drum1) if self.last_drum1 < max_val else str(max_val)
+		d2 = str(self.last_drum2) if self.last_drum2 < max_val else str(max_val)
+		# reset last_drum1 and last_drum2
+		self.last_drum1 = max_val 
+		self.last_drum2 = max_val
+		return d1 + d2 # append the 2 strings together
 
 	def parseDrumVals(self, drumConfig):
 		finalresult = ["empty" for i in xrange(6)]
@@ -85,9 +93,10 @@ class RemoteInputHandler:
 	def update_accel(self, accels):
 		self.accel = accels
 
-	# x_pos and y_pos define a position in the drum 2D array
-	def update_last_drum(self, x_pos, y_pos):
-		self.last_drum = (y_pos * self.drums_per_row) + x_pos
+	# coords = (x_pos, y_pos) define a position in the drum 2D array for stick 1
+	def update_last_drum(self, coords1=None, coords2=None):
+		self.last_drum1 = (coords1[1] * self.drums_per_row) + coords1[0] if coords1 is not None else self.last_drum1
+		self.last_drum2 = (coords2[1] * self.drums_per_row) + coords2[0] if coords2 is not None else self.last_drum2
 
 	def get_drum_config(self):
 		return self.drum_config

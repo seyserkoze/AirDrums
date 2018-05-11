@@ -242,7 +242,8 @@ class Vector3D():
 
 
 # returns the devices in device_ids as a dictionary of id: device
-def getDevices(device_ids, timeout=20):
+# can possibly return less than expected if timeout
+def getDevices(device_ids, timeout=30):
     # Get the first available BLE network adapter and make sure it's powered on.
     adapter = ble.get_default_adapter()
     adapter.power_on()
@@ -388,6 +389,99 @@ def parseSensorData(data_str):
 def system_ready(remote_handler):
 	return remote_handler.get_drum_config() is not None
 
+# start the trackers for 2 sticks. Returns array of [x1,y1, z1]
+def init_trackers(n):
+	ret = []
+	for i in xrange(n):
+		x = XPositionalTracker(1, 0, 2)
+		y = YPositionalTracker(1, 0, 1)
+		z = DrumPulseTracker(-9.0, 10.0, 7, name="z") # (-7.0, 8.0)
+		ret.append([x,y,z])
+	return ret
+
+# takes in the object/data_type returned by init_trackers and callls start method
+def start_trackers(trackers):
+	for t_obj in trackers:
+		for t in t_obj:
+			t.start()
+
+# takes in tracker obj from init_tracksers and an array of uart_streams
+# if not of same length, the lesser of the 2 will be used
+# associate each tracker obj with its own uart stream
+def bind_trackers(trackers, uart_streams):
+	return zip(trackers, uart_streams)
+	
+# takes in an array of bound trackers and prev_res. Initialize with None
+# function tracks state. prev_res should be the result of last call to update_trackers
+# returns (hit_detected, prev_res) = ([Boolean], [(accel_raw, accel_diff)]
+def update_trackers(bound_trackers, prev_res):
+	prev_ret = []
+	hits = []
+	for (i, elem) in enumerate(bound_trackers):
+		(trackers, uart_stream) = elem
+		sensor_str = uart_stream.readBetween("[","]")
+		# print "Received: {}".format(sensor_str)
+		(t,accel_new) = parseSensorData(sensor_str)
+		# perform differencing logic to remove systematic errors
+		if prev_res is None: # first sensor reading
+			prev_ret.append((accel_new, 0.0))
+			hits.append(False)
+		else: # perform differencing on readings to remove systematic errors
+			(accel_raw, accel_diff) = prev_res[i]
+			accel_grad = (accel_new - accel_raw) # / t division is not needed
+			accel_diff += accel_grad # * t) mult no needed # update accel_diff
+			prev_ret.append((accel_new, accel_diff)) # update accel_raw and diff value
+			x,y,z = accel_diff
+			xt,yt,zt = trackers
+			xt.update(t,x)
+			yt.update(t,y)
+			z_id = zt.getPulseID()
+			if zt.update(t,z) != z_id:
+				hits.append(True)
+			else:
+				hits.append(False)
+	return (hits, prev_ret)
+
+
+def get_coord(trackers):
+		return (trackers[0].getPosition(), trackers[1].getPosition())
+
+def update_remote(bound_trackers, remote_handler, hits):
+	if len(bound_trackers) == 0:
+		return
+	coords = [None, None]
+	for (i,hit) in enumerate(hits[0:2]):
+		if hit:
+			coords[i] = (get_coord(bound_trackers[i][0]))
+		else:
+			coords[i] = (None)
+	# print "updating {}".format(coords)
+	remote_handler.update_last_drum(coords[0], coords[1])
+
+def play_sounds(bound_trackers, hits, sound_mapper, player):
+	for (i,hit) in enumerate(hits[0:2]):
+		if hit:
+			(x_pos, y_pos) = get_coord(bound_trackers[i][0])
+			z_amp = bound_trackers[i][0][2].getPulseAmp()
+			sound = sound_mapper.getDrumSound(x_pos, y_pos, z_amp)
+			player.queue_sound(sound)
+
+
+def start_multi(remote_handler, uart_streams):
+	print "Starting multi stick drums. Devices = {}".format(len(uart_streams))
+	trackers = init_trackers(len(uart_streams))
+	start_trackers(trackers)
+	bound_trackers = bind_trackers(trackers, uart_streams)
+	sound_mapper = DrumSoundMapper(remote_handler.get_drum_config(), (0, 60))
+	audio_player = Audio(10)
+	prev_res = None
+	while not end_program and not remote_handler.received_quit():
+		(hits, pr) = update_trackers(bound_trackers, prev_res)
+		play_sounds(bound_trackers, hits, sound_mapper, audio_player)
+		update_remote(bound_trackers, remote_handler, hits)
+		prev_res = pr
+	audio_player.stop()
+		
 
 # blocking call that starts drumming system
 def start_drums(remote_handler, uart_stream):
@@ -438,27 +532,25 @@ def start_drums(remote_handler, uart_stream):
 			z_id = z_tracker.getPulseID()
 			x_pos = x_tracker.getPosition()
 			y_pos = y_tracker.getPosition()
-			print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
+			# print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
 			# print "X pos ", x_pos 
 			# print "Y pos", y_pos
 			sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
 			remote_handler.update_last_drum(x_pos, y_pos)
-			# print "Playing: ", sound
 			"DEBUG"
 			curr_time = time.time()
 			last_drum_hit = (y_pos * 3) + x_pos
 			"DEBUG"
 			audio_player.queue_sound(sound)
-
 		collectData(x,y,z, time_val=(teensy_time,curr_time), hit_val=last_drum_hit)
-		# sensor_data.append(vect.toArray())
-		# accel_printer.printVal("Displacement = {}".format(tracker.getDisplacement()))
+
 	audio_player.stop()
+	return
 
 # polls sensors and starts user input handler thread
 def start_system():
 	global sensor_data
-	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")] # UUID(faa118b7-6ad3-464f-b4c8-dfdaf388c78e), UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")
+	allowed_ids = [ UUID("faa118b7-6ad3-464f-b4c8-dfdaf388c78e")] ,# UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")]
 	packet_len = 20
 	devices = []
 	try:
@@ -472,12 +564,46 @@ def start_system():
 				break
 		if not end_program and not remote_handler.received_quit():
 			# onlys start drums if user has not quit
+			# establish bluetooth connection, do it here to prevent accumulating sensor inputs while user selects drums
 			devices = getDevices(allowed_ids) # dict of uuid: device
 			uarts = {device.id: UART(device) for device in devices.values()}
 			uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
-			# establish bluetooth connection, do it here to prevent accumulating sensor inputs while user selects drums
 			# uarts are used to read and write data over bluetooth
 			start_drums(remote_handler, uart_stream) # returns when received a quit signal
+		remote_handler.force_quit()
+		print "shutting down drums"
+	finally:
+		for device in devices.values():
+			device.disconnect()
+		# plotSensorData(sensor_data)
+		saveData()
+
+
+# polls sensors and starts user input handler thread
+def multi_system():
+	global sensor_data
+	allowed_ids = [UUID("faa118b7-6ad3-464f-b4c8-dfdaf388c78e"),
+				   UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")]
+	packet_len = 20
+	devices = []
+	try:
+		# start data handlers
+		# thread.start_new_thread(userInputHandler, ())
+		remote_handler = RemoteInputHandler()
+		remote_handler.start()
+		# spin until system is ready
+		while not system_ready(remote_handler):
+			if end_program or remote_handler.received_quit():
+				break
+		if not end_program and not remote_handler.received_quit():
+			# onlys start drums if user has not quit
+			# establish bluetooth connection, do it here to prevent accumulating sensor inputs while user selects drums
+			devices = getDevices(allowed_ids) # dict of uuid: device
+			uarts = {device.id: UART(device) for device in devices.values()}
+			# uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
+			uart_streams = [UARTStream(devices[allowed_ids[i]], uarts[allowed_ids[i]]) for i in xrange(len(devices))]
+			start_multi(remote_handler, uart_streams)
+			
 		remote_handler.force_quit()
 		print "shutting down drums"
 	finally:
@@ -493,7 +619,8 @@ def main():
     # caching data and it going stale.
     ble.clear_cached_data()
     # call desired function here
-    start_system()
+    # start_system()
+    multi_system()
     return
 
 
