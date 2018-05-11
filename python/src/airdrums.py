@@ -368,25 +368,63 @@ class AirDrums(EventBasedAnimationClass):
 			xgap = (self.width/4)
 			ygap = (self.height/3)
 
+
+			###############################
+			# CODE FOR SECOND DRUM STICK BEGINS HERE
+			##############################
+
+			#what's different is that now you need to send two characters
+			#so 45 = drum 4 hit by stick 1 and 5 hit by stick 2 
+			#in case of nothing played send a 66 or 77 or any integer
+			# as a string that has a value about 55, make sure not 
+			# to send a -1 for no drum hit
+
 			drumHit = self.connection.recv(2)
+			stick1 = drumHit[0]
+			stick2 = drumHit[1]
 
 			if (self.finalDrumList[0]): 
-				color0 = "red" if  (drumHit == "0") else "white"
-				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 0, self.width/9, color0)			
+				color0 = "white"
+				if (stick1 == "0"):
+					color0 = "red"
+				if (stick2 == "0"):
+					color0 = "blue"
+				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 0, self.width/9, color0)	
+
 			if (self.finalDrumList[1]): 
-				color1 = "red" if  (drumHit == "1") else "white"
+				color0 = "white"
+				if (stick1 == "1"):
+					color0 = "red"
+				if (stick2 == "1"):
+					color0 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 1, self.width/9, color1)
 			if (self.finalDrumList[2]): 
-				color2 = "red" if  (drumHit == "2") else "white"
+				color0 = "white"
+				if (stick1 == "2"):
+					color0 = "red"
+				if (stick2 == "2"):
+					color0 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 2, self.width/9, color2)
 			if (self.finalDrumList[3]): 
-				color3 = "red" if  (drumHit == "3") else "white"
+				color0 = "white"
+				if (stick1 == "3"):
+					color0 = "red"
+				if (stick2 == "3"):
+					color0 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 3, self.width/9, color3)
 			if (self.finalDrumList[4]): 
-				color4 = "red" if  (drumHit == "4") else "white"
+				color0 = "white"
+				if (stick1 == "4"):
+					color0 = "red"
+				if (stick2 == "4"):
+					color0 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 4, self.width/9, color4)
 			if (self.finalDrumList[5]): 
-				color5 = "red" if  (drumHit == "5") else "white"
+				color0 = "white"
+				if (stick1 == "5"):
+					color0 = "red"
+				if (stick2 == "5"):
+					color0 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 5, self.width/9, color5)
 
 			self.canvas.create_text(self.width/5+38, self.height/3+25, text= self.finalDrumList[0], font= "Helvetica 24")
