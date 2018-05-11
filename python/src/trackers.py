@@ -259,12 +259,12 @@ class PositionalTracker():
 class XPositionalTracker(PositionalTracker):
 	def __init__(self, start, lo, hi):
 		PositionalTracker.__init__(self, start,lo,hi)
-		pulse_window = 15
-		x_floor = -7.0
-		x_ceil = 8.0 
+		pulse_window = 6
+		x_floor = -25.0 
+		x_ceil = 16.0 
 		self.leftPulseTracker = DrumPulseTracker(x_floor, x_ceil, pulse_window, name="x_left")
 		self.rightPulseTracker = DrumPulseTracker(x_floor, x_ceil, pulse_window, name="x_right")
-		self.double_move = 70
+		self.double_move = 80.0
 	
 	def start(self):
 		self.leftPulseTracker.start()
@@ -302,12 +302,12 @@ class XPositionalTracker(PositionalTracker):
 class YPositionalTracker(PositionalTracker):
 	def __init__(self, start, lo, hi):
 		PositionalTracker.__init__(self, start,lo,hi)
-		pulse_window = 8
-		y_floor = -6.0
-		y_ceil = 6.0 
+		pulse_window = 6 
+		y_floor = -20.0 
+		y_ceil = 35.0 
 		self.upPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_up")
-		self.downPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_down")
-		self.double_move = 60
+		self.downPulseTracker = DrumPulseTracker(-y_ceil, -y_floor, pulse_window, name= "y_down") # DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_down")
+		self.double_move = 80
 	
 	def start(self):
 		self.upPulseTracker.start()

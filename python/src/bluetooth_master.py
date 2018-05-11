@@ -401,7 +401,7 @@ def start_drums(remote_handler, uart_stream):
 	# init trackers
 	x_tracker = XPositionalTracker(1, 0, 2)
 	y_tracker = YPositionalTracker(1, 0, 1)
-	z_tracker = DrumPulseTracker(-7.0, 8.0, 7, name="z")
+	z_tracker = DrumPulseTracker(-9.0, 10.0, 7, name="z") # (-7.0, 8.0)
 	x_tracker.start()
 	y_tracker.start()
 	z_tracker.start()
@@ -439,11 +439,11 @@ def start_drums(remote_handler, uart_stream):
 			x_pos = x_tracker.getPosition()
 			y_pos = y_tracker.getPosition()
 			print "Z Pulse Detected", z_id, z_tracker.getPulseAmp() 
-			print "X pos ", x_pos 
-			print "Y pos", y_pos
+			# print "X pos ", x_pos 
+			# print "Y pos", y_pos
 			sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
 			remote_handler.update_last_drum(x_pos, y_pos)
-			print "Playing: ", sound
+			# print "Playing: ", sound
 			"DEBUG"
 			curr_time = time.time()
 			last_drum_hit = (y_pos * 3) + x_pos
@@ -461,9 +461,6 @@ def start_system():
 	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")] # UUID(faa118b7-6ad3-464f-b4c8-dfdaf388c78e), UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")
 	packet_len = 20
 	devices = []
-	devices = getDevices(allowed_ids) # dict of uuid: device
-	uarts = {device.id: UART(device) for device in devices.values()}
-	uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
 	try:
 		# start data handlers
 		# thread.start_new_thread(userInputHandler, ())
@@ -475,7 +472,9 @@ def start_system():
 				break
 		if not end_program and not remote_handler.received_quit():
 			# onlys start drums if user has not quit
-
+			devices = getDevices(allowed_ids) # dict of uuid: device
+			uarts = {device.id: UART(device) for device in devices.values()}
+			uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
 			# establish bluetooth connection, do it here to prevent accumulating sensor inputs while user selects drums
 			# uarts are used to read and write data over bluetooth
 			start_drums(remote_handler, uart_stream) # returns when received a quit signal
