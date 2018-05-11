@@ -306,7 +306,8 @@ class YPositionalTracker(PositionalTracker):
 		y_floor = -20.0 
 		y_ceil = 35.0 
 		self.upPulseTracker = DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_up")
-		self.downPulseTracker = DrumPulseTracker(-y_ceil, -y_floor, pulse_window, name= "y_down") # DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_down")
+		self.downPulseTracker = DrumPulseTracker(-y_ceil, -y_floor, pulse_window, name= "y_down")
+		# DrumPulseTracker(y_floor, y_ceil, pulse_window, name="y_down")
 		self.double_move = 80
 	
 	def start(self):
