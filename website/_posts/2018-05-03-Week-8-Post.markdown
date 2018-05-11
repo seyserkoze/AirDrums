@@ -1,0 +1,35 @@
+---
+layout: post
+title:  "Week 8 Blog Post"
+date:   2018-05-03 12:01:02 -0500
+categories: Capstone Update
+---
+## Avi: ## 
+
+* Began integration of system to portable drumsticks
+
+* Soldering and desoldering of components
+
+* Final presentation
+
+
+## Samuel: ## 
+
+* Debugged issues with Teensy code regarding data transmission without active UART connections
+
+* Began integration of system to portable drumsticks
+
+* Soldering and desoldering of components
+
+* Final presentation
+
+
+## Shaurya: ##
+
+* Began integration of system to portable drumsticks
+
+* Soldering and desoldering of components
+
+* Final presentation
+
+
