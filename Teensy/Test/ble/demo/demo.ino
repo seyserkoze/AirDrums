@@ -124,25 +124,25 @@ void displayCalStatus(void)
 }
 
 void ble_setup() {
-  while (!Serial);  // required for Flora & Micro
+  // while (!Serial);  // required for Flora & Micro
   delay(500);
   //F stores string in ram
-  Serial.println(F("Adafruit Bluefruit Command <-> Data Mode Example"));
-  Serial.println(F("------------------------------------------------"));
+  // Serial.println(F("Adafruit Bluefruit Command <-> Data Mode Example"));
+  // Serial.println(F("------------------------------------------------"));
 
   /* Initialise the module */
-  Serial.print(F("Initialising the Bluefruit LE module: "));
+  // Serial.print(F("Initialising the Bluefruit LE module: "));
 
   if ( !ble.begin(VERBOSE_MODE) )
   {
     error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
   }
-  Serial.println( F("OK!") );
+  // Serial.println( F("OK!") );
 
   if ( FACTORYRESET_ENABLE )
   {
     /* Perform a factory reset to make sure everything is in a known state */
-    Serial.println(F("Performing a factory reset: "));
+    // Serial.println(F("Performing a factory reset: "));
     if ( ! ble.factoryReset() ){
       error(F("Couldn't factory reset"));
     }
@@ -151,14 +151,14 @@ void ble_setup() {
   /* Disable command echo from Bluefruit */
   ble.echo(false);
 
-  Serial.println("Requesting Bluefruit info:");
+  // Serial.println("Requesting Bluefruit info:");
   /* Print Bluefruit information */
-  ble.info();
-
+  // ble.info();
+  /*
   Serial.println(F("Please use Adafruit Bluefruit LE app to connect in UART mode"));
   Serial.println(F("Then Enter characters to send to Bluefruit"));
   Serial.println();
-
+  */
   ble.verbose(false);  // debug info is a little annoying after this point!
 
   /* Wait for connection */
@@ -166,29 +166,29 @@ void ble_setup() {
       delay(500);
   }
 
-  Serial.println(F("******************************"));
+  // Serial.println(F("******************************"));
 
   // LED Activity command is only supported from 0.6.6
   if ( ble.isVersionAtLeast(MINIMUM_FIRMWARE_VERSION) )
   {
     // Change Mode LED Activity
-    Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
+    // Serial.println(F("Change LED activity to " MODE_LED_BEHAVIOUR));
     ble.sendCommandCheckOK("AT+HWModeLED=" MODE_LED_BEHAVIOUR);
   }
 
  
-  Serial.println(F("******************************"));
+  // Serial.println(F("******************************"));
 }
 
 char imu_setup() {
   if(!bno.begin()) {
-    Serial.println(F("Could not find BNO055")) ; 
+    // Serial.println(F("Could not find BNO055")) ; 
     return 0 ; // no sensor found
   }
-  Serial.println("Starting BNO055...") ;
+  // Serial.println("Starting BNO055...") ;
   delay(1000) ;
-  displaySensorDetails(); 
-  displaySensorStatus() ;
+  // displaySensorDetails(); 
+  // displaySensorStatus() ;
   bno.setExtCrystalUse(true) ;
   return 1 ; 
 }
@@ -227,7 +227,7 @@ String serialize_data(unsigned long elapsed_t, imu::Vector<3> &accel) {
       buf[1] = 0 ; 
     }
   }
-  //Serial.println(packet_buf) ;
+  // Serial.println(packet_buf) ;
   return String(packet_buf) ;
 }
 
@@ -235,7 +235,7 @@ String serialize_data(unsigned long elapsed_t, imu::Vector<3> &accel) {
 char send_data(String data) {
   int len = data.length() ;
   if(len > packet_len) {
-    Serial.println("Serialized data too long");
+    // Serial.println("Serialized data too long");
     return 0 ;
   }
   for(int i =0; i < len; i++) {
@@ -244,6 +244,7 @@ char send_data(String data) {
   packet_buf[len] = 0 ; //null terminator
   ble.print("AT+BLEUARTTX=");
   ble.println(packet_buf) ;
+  // Serial.println(packet_buf) ;
   return 1 ; 
 }
 
@@ -253,7 +254,7 @@ char send_data(String data) {
 /*------------------Main Functions--------------------*/
 
 void setup() {
-  Serial.begin(baud_rate) ;
+  // Serial.begin(baud_rate) ;
   pinMode(teensyLEDPin, OUTPUT) ;
   digitalWrite(teensyLEDPin, HIGH) ; //turn on status led on teensy
   ble_setup() ;

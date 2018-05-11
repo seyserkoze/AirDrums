@@ -15,14 +15,28 @@ from remote_input_handler import RemoteInputHandler
 end_program = False
 # Get the BLE provider for the current platform.
 ble = Adafruit_BluefruitLE.get_provider()
-sensor_data = []
-# should contain 1 of each "crash, hihats, hitoms, lotoms, ride, snare"
+# should contain 1 of each "crash, hihat				s, hitoms, lotoms, ride, snare"
 drum_config = None
 """[["hitoms", "lotoms", "crash"],
 				["ride", "snare", "hihats"]]
 """
 
-#----------------------Debugging functions---------------------
+#----------------------Debugging functions and variables---------------------
+curr_time = None # in seconds
+start_times = None
+teensy_time = 0 # in seconds
+time_data = [] # stores tuples of (hit_det time, sound_play time)
+hit_data = [] # stores drum index hit
+sensor_data = []
+debug = False
+
+def debug_init():
+	global start_times, teensy_time
+	curr_time = time.time()
+	start_times = (0.0, time.time())
+	teensy_time = 0
+	time_data = []
+	hit_data = []
 
 class PeriodicPrinter():
 	# period is seconds
@@ -36,15 +50,31 @@ class PeriodicPrinter():
 			print val
 			self.curr_time = t
 
-def collectData(x_data, y_data, z_data):
+def collectData(x_data, y_data, z_data, time_val=[], hit_val=-1):
+	if not debug:
+		return 
 	sensor_data.append([x_data, y_data, z_data])
-
+	if hit_val > -1: # only append if hit was detected
+		hit_data.append(hit_val)
+		time_data.append(time_val)
+	return
 
 # sensor_data is a 2d array. saves to file defined in function
-def saveData(sensor_data):
+def saveData():
+	global sensor_data, time_data, hit_data, start_times
+	if not debug: 
+		return
+	if(len(sensor_data) == 0):
+		return
 	filename = "./sensor_data.csv"
 	np.savetxt(filename, sensor_data, delimiter=",")
-
+	filename = "./time_data.csv"
+	start_times = time_data[0] 
+	for i, ts in enumerate(time_data):
+		time_data[i] = (ts[0] - start_times[0], ts[1] - start_times[1])
+	np.savetxt(filename, time_data, delimiter=",")
+	filename = "./hit_data.csv"
+	np.savetxt(filename, hit_data, delimiter=",")
 
 # -----------------------Examples------------------------------
 # prints device info
@@ -361,6 +391,8 @@ def system_ready(remote_handler):
 
 # blocking call that starts drumming system
 def start_drums(remote_handler, uart_stream):
+	global teensy_time, curr_time
+	print "Drums Started"
 	sound_mapper = DrumSoundMapper(remote_handler.get_drum_config(), (0, 60))
 	audio_player = Audio(10)
 	accel_diff = np.array([0.0,0.0,0.0]) # assume starts from 0 
@@ -373,10 +405,17 @@ def start_drums(remote_handler, uart_stream):
 	x_tracker.start()
 	y_tracker.start()
 	z_tracker.start()
+	# "DEBUG"
+	debug_init()
+	# "DEBUG"
 	while not end_program and not remote_handler.received_quit():
 		sensor_str = uart_stream.readBetween("[","]")
 		# print "Received: {}".format(sensor_str)
 		(t,accel_new) = parseSensorData(sensor_str)
+		"DEBUG"
+		teensy_time += t
+		# print (teensy_time, time.time() - start_times[1])
+		"DEBUG"
 
 		# perform differencing logic to remove systematic errors
 		if accel_raw is None: # first sensor reading
@@ -391,7 +430,10 @@ def start_drums(remote_handler, uart_stream):
 		remote_handler.update_accel(accel_diff)
 		x_tracker.update(t, x)
 		y_tracker.update(t, y)
-		# if drum_config is provided and 
+		# if drum_config is provided and
+		"DEBUG"
+		last_drum_hit = -1
+		"DEBUG"
 		if z_tracker.update(t, z) != z_id:
 			z_id = z_tracker.getPulseID()
 			x_pos = x_tracker.getPosition()
@@ -401,30 +443,30 @@ def start_drums(remote_handler, uart_stream):
 			print "Y pos", y_pos
 			sound = sound_mapper.getDrumSound(x_pos, y_pos, z_tracker.getPulseAmp())
 			remote_handler.update_last_drum(x_pos, y_pos)
-			last_drum = (y_pos * 3) + x_pos
 			print "Playing: ", sound
+			"DEBUG"
+			curr_time = time.time()
+			last_drum_hit = (y_pos * 3) + x_pos
+			"DEBUG"
 			audio_player.queue_sound(sound)
 
-		collectData(x,y,z)
+		collectData(x,y,z, time_val=(teensy_time,curr_time), hit_val=last_drum_hit)
 		# sensor_data.append(vect.toArray())
 		# accel_printer.printVal("Displacement = {}".format(tracker.getDisplacement()))
-
-
+	audio_player.stop()
 
 # polls sensors and starts user input handler thread
 def start_system():
 	global sensor_data
-	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")]
-	devices = getDevices(allowed_ids) # dict of uuid: device
-	# uarts are used to read and write data over bluetooth
-	uarts = {device.id: UART(device) for device in devices.values()}
+	allowed_ids = [UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")] # UUID(faa118b7-6ad3-464f-b4c8-dfdaf388c78e), UUID("1c7c996c-79b0-47df-905a-93233d6fdc67")
 	packet_len = 20
-
+	devices = []
+	devices = getDevices(allowed_ids) # dict of uuid: device
+	uarts = {device.id: UART(device) for device in devices.values()}
 	uart_stream = UARTStream(devices[allowed_ids[0]], uarts[allowed_ids[0]])
-	# tracker = AccelTracker()
 	try:
 		# start data handlers
-		thread.start_new_thread(userInputHandler, ())
+		# thread.start_new_thread(userInputHandler, ())
 		remote_handler = RemoteInputHandler()
 		remote_handler.start()
 		# spin until system is ready
@@ -433,17 +475,17 @@ def start_system():
 				break
 		if not end_program and not remote_handler.received_quit():
 			# onlys start drums if user has not quit
+
+			# establish bluetooth connection, do it here to prevent accumulating sensor inputs while user selects drums
+			# uarts are used to read and write data over bluetooth
 			start_drums(remote_handler, uart_stream) # returns when received a quit signal
 		remote_handler.force_quit()
-	#except Exception as e:
-	#	print(e)
-	#	raise e
+		print "shutting down drums"
 	finally:
 		for device in devices.values():
 			device.disconnect()
 		# plotSensorData(sensor_data)
-		saveData(sensor_data)
-
+		saveData()
 
 
 

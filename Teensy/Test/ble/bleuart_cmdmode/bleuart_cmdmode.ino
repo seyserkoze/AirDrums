@@ -91,11 +91,11 @@ void setup(void)
   /* Initialise the module */
   Serial.print(F("Initialising the Bluefruit LE module: "));
 
+
   if ( !ble.begin(VERBOSE_MODE) )
   {
     error(F("Couldn't find Bluefruit, make sure it's in CoMmanD mode & check wiring?"));
   }
-  Serial.println( F("OK!") );
 
   if ( FACTORYRESET_ENABLE )
   {
@@ -104,6 +104,8 @@ void setup(void)
     if ( ! ble.factoryReset() ){
       error(F("Couldn't factory reset"));
     }
+  Serial.println( F("OK!") );
+
   }
 
   /* Disable command echo from Bluefruit */

@@ -1,17 +1,17 @@
 
 import socket
-from threading import Thread
+from threading import Thread, Event
 
 class RemoteInputHandler:
 	def __init__(self):
 		self.drum_config = None
 		self.accel = None
 		self.last_drum = None
-		self.end_program = False
+		self.end_program = Event()
 		self.host = 'localhost'
 		self.port = 50000
 		self.drums_per_row = 3
-		self.quit = False
+		self.quit = Event()
 
 	# sends accel vals
 	def sendVals(self):
@@ -45,11 +45,11 @@ class RemoteInputHandler:
 		conn, addr = sock.accept()
 		print "accepted..\n"
 
-		while not self.quit:
+		while not self.quit.is_set():
 			data = conn.recv(4)
 			#send data about vector information
 			if (data == 'TEST'):
-				print "sending to client...\n", self.sendVals()
+				# print "sending to client...\n", self.sendVals()
 				conn.sendall(self.sendVals())
 				# time.sleep(1)
 
@@ -75,8 +75,11 @@ class RemoteInputHandler:
 				print "shutting down.."
 				conn.shutdown(socket.SHUT_RDWR)
 				conn.close()
-				self.end_program = True
+				self.end_program.set() # set end_program flag
 				break
+		sock.close()
+		print "Shutting down remote input handler"
+		return
 
 
 	def update_accel(self, accels):
@@ -90,10 +93,10 @@ class RemoteInputHandler:
 		return self.drum_config
 
 	def received_quit(self):
-		return self.end_program
+		return self.end_program.is_set()
 
 	def force_quit(self):
-		self.quit = True
+		self.quit.set() # set quit flag
 
 	def start(self):
 		t = Thread(target=self.thread_fn)

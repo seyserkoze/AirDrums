@@ -37,6 +37,7 @@ def plotAllAccelOverTime(sensor_data):
 		plt.subplot(sensor_data.shape[1], 1, col +1)
 		plt.plot(sensor_data[:, col])
 		plt.title(titles[col])
+	plt.tight_layout()
 	plt.show() 
 
 
@@ -68,7 +69,7 @@ sensor_data = np.loadtxt(filename, delimiter=",")
 #plotAccelOverTime(sensor_data, col=0)
 #plotAllData(sensor_data)
 # print sensor_data[45:68, 0]
-simulatePos(sensor_data)
+# simulatePos(sensor_data)
 plotAllAccelOverTime(sensor_data)
 
 

@@ -1,6 +1,6 @@
 import os
 from Queue import Queue
-from threading import Thread
+from threading import Thread, Event
 from time import sleep
 
 import pygame
@@ -30,13 +30,20 @@ class Audio:
         while channel.get_busy():
             sleep(0.0001)
 
+
+    def stop(self):
+        """
+        Call to stop the audio player. Terminates all the threads
+        """
+        self.__stop_event.set() # set stop flag
+
     def __worker(self):
         """
         worker plays sound with drum and volume from queue
         :param self: class
         :return: None, runs forever
         """
-        while True:
+        while not self.__stop_event.is_set():
             (args) = self.__task_queue.get()
             drum = args[0]
             attack = args[1]
@@ -62,6 +69,7 @@ class Audio:
         """
         # Task queue that contains sounds to be played
         self.__task_queue = Queue()
+        self.__stop_event = Event()
         pygame.mixer.init()
         pygame.mixer.set_num_channels(num_channels)
         for i in range(num_channels):
