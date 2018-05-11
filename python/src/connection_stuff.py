@@ -16,15 +16,14 @@ def sendVals():
 	return word
 
 def drumVal():
-	return str(randint(0,5))
+	return str(randint(0,6))+str(randint(0,6))
 
 #to be implemented
 def dataReady():
 	return 1
 
-
-
 def start_handler():
+	print "hey im starting"
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	s.bind(('localhost', 50000))
 
@@ -48,7 +47,7 @@ def start_handler():
 		#receiving data about drumlist from server
 		elif (data == 'READ'):
 			print "reading from client...\n"
-			drumlist = conn.recv(1024)
+			drumlist = conn.recv(17)
 			print "drumlist is " + drumlist
 
 		#drum hit indicator
@@ -66,4 +65,4 @@ def start_handler():
 			conn.close()
 			break
 
-
+start_handler()

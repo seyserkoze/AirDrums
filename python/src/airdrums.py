@@ -8,6 +8,7 @@ import functools
 from communication import Communication
 from multiprocessing import Process, Pipe
 import socket
+import thread
 
 class AirDrums(EventBasedAnimationClass):
 	def __init__(self):
@@ -16,7 +17,8 @@ class AirDrums(EventBasedAnimationClass):
 		super(AirDrums,self).__init__(self.width,self.height)
 
 	def initAnimation(self):
-
+		thread.start_new_thread(os.system, ("python connection_stuff.py",))
+		time.sleep(1)
 		canvas = self.canvas
 		self.root.bind("<Motion>", lambda event: self.onMouseMotion(event))
 
@@ -82,7 +84,6 @@ class AirDrums(EventBasedAnimationClass):
 
 	def onMousePressed(self, event):
 		(self.x, self.y) = (event.x, event.y)
-		print(self.x, self.y)
 
 		if (self.startScreen):
 
@@ -392,39 +393,39 @@ class AirDrums(EventBasedAnimationClass):
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 0, self.width/9, color0)	
 
 			if (self.finalDrumList[1]): 
-				color0 = "white"
+				color1 = "white"
 				if (stick1 == "1"):
-					color0 = "red"
+					color1 = "red"
 				if (stick2 == "1"):
-					color0 = "blue"
+					color1 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 1, self.width/9, color1)
 			if (self.finalDrumList[2]): 
-				color0 = "white"
+				color2 = "white"
 				if (stick1 == "2"):
-					color0 = "red"
+					color2 = "red"
 				if (stick2 == "2"):
-					color0 = "blue"
+					color2 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 2, self.width/9, color2)
 			if (self.finalDrumList[3]): 
-				color0 = "white"
+				color3 = "white"
 				if (stick1 == "3"):
-					color0 = "red"
+					color3 = "red"
 				if (stick2 == "3"):
-					color0 = "blue"
+					color3 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 3, self.width/9, color3)
 			if (self.finalDrumList[4]): 
-				color0 = "white"
+				color4 = "white"
 				if (stick1 == "4"):
-					color0 = "red"
+					color4 = "red"
 				if (stick2 == "4"):
-					color0 = "blue"
+					color4 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 4, self.width/9, color4)
 			if (self.finalDrumList[5]): 
-				color0 = "white"
+				color5 = "white"
 				if (stick1 == "5"):
-					color0 = "red"
+					color5 = "red"
 				if (stick2 == "5"):
-					color0 = "blue"
+					color5 = "blue"
 				self.draw_circle_notag(xgap, ygap, xoffset, yoffset, 5, self.width/9, color5)
 
 			self.canvas.create_text(self.width/5+38, self.height/3+25, text= self.finalDrumList[0], font= "Helvetica 24")
